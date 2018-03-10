@@ -142,7 +142,7 @@ char *findcommand(PDIRECT *head, char *commandinput)
 			buf[i] = (head->s)[i]; /** goes through each string in the list and sets to buf */
 		}
 		buf[i++] = '/';
-		for (j = 0; j < flen; j++)
+		for (j = 0; j < commandinputlen; j++)
 		{
 			buf[j + i] = commandinput[j];
 		}
@@ -288,9 +288,9 @@ int main()
 	pid_t childpid;
 	PDIRECT *head;
 
-	p = malloc(10 * sizeof(char *));
+	storetoken = malloc(10 * sizeof(char *));
 
-	if (p == NULL)
+	if (storetoken == NULL)
 		return (0);
 
 	head = linkedpath(); /** link list of the entire path */
@@ -332,7 +332,7 @@ int main()
 			if (checkenv(storetoken)) /** checks if the token says env (builtin)") */
 				continue;
 
-			execve(p[0], storetoken, NULL);
+			execve(storetoken[0], storetoken, NULL);
 
 			cmdinpath = findcommand(head, storetoken[0]); /** goes through the PATH (head linked list) and looks at first command **/
 
