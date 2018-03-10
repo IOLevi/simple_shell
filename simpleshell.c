@@ -109,14 +109,14 @@ int _strlen(char *s)
 /**
  * findcommand - uses stat to find a file in the path
  * @head: head pointer to the linked list of path directories
- * @f: user entered command to check in the path
+ * @commandinput: user entered command to check in the path
  * Return: pointer to full path to a command if it exists; otherwise null;
  */
-char *findcommand(PDIRECT *head, char *f)
+char *findcommand(PDIRECT *head, char *commandinput)
 {
-	struct stat st;
+	struct stat st; /** struct part of the library to look at stat */
 	char *buf;
-	int flen = 0, dirlen = 0, i, j;
+	int commandinputlen = 0, dirlen = 0, i, j;
 
 	/* works 1:11pm evanday
 	while (head)
@@ -126,28 +126,28 @@ char *findcommand(PDIRECT *head, char *f)
 	} */
 
 	//printf("%s\n", f); also works
-	flen = _strlen(f);
+	commandinputlen= _strlen(commandinput);
 	//printf("%d\n", flen); also works
-	while(head)
+	while(head != NULL)
 	{
-		dirlen = _strlen(head->s);
+		dirlen = _strlen(head->s); /** finds the length of each s in the path */
 
-		buf = malloc(sizeof(char) * (flen + dirlen) + 2);
+		buf = malloc(sizeof(char) * (commandinputlen + dirlen) + 2);
 		if (!buf)
 			return (NULL);
 
 		//building a string with the /path/to/cmd
 		for (i = 0; i < dirlen; i++)
 		{
-			buf[i] = (head->s)[i];
+			buf[i] = (head->s)[i]; /** goes through each string in the list and sets to buf */
 		}
 		buf[i++] = '/';
 		for (j = 0; j < flen; j++)
 		{
-			buf[j + i] = f[j];
+			buf[j + i] = commandinput[j];
 		}
 		buf[j + i] = '\0';
-		
+
 		if (stat(buf, &st) == 0)
 		{
 			return (buf);
@@ -187,7 +187,7 @@ int _strcmp(char *s1, char *s2)
  * @s: string to convert
  * Return: -1 if it fails
  */
-int _atoi(char *s)
+int _atoi(char *s) /** necessary for exit function when printing exit value*/
 {
 	int sum = 0;
 
@@ -212,18 +212,18 @@ int _atoi(char *s)
  * checkexit - implements exit builtin and exits with supplied error #
  * @p: user command strings
  */
-void checkexit(char **p)
+void checkexit(char **token)
 {
 	char check[] = "exit";
 	int errnumber = 0;
 
-	if (_strcmp(p[0], check) == 0)
+	if (_strcmp(token[0], check) == 0) /** means that the token at position 0 is exit*/
 	{
 		printf("I am here\n");
 		//if there is a second argument
-		if (p[1])
+		if (token[1])
 		{
-			errnumber = _atoi(p[1]);
+			errnumber = _atoi(token[1]);
 			printf("%d\n", errnumber);
 		}
 
@@ -248,7 +248,7 @@ void checkforbuiltins(char **p)
 } */
 
 /**
- * checkenv - implements the env builtin command
+ * checkenv - checks to see if the token is the env
  * @p: user supplies command line arguments
  * Return: returns 1 if user entered the command; zero otherwise
  */
@@ -261,6 +261,8 @@ int checkenv(char **p)
 
 	if (_strcmp(*p, command) == 0)
 	{
+/** environ is an array of all the values that represent the shell environment*/
+/** this loop prints each environmental variable*/
 		while (environ[i])
 		{
 			write(STDOUT_FILENO, environ[i], _strlen(environ[i]));
@@ -279,7 +281,7 @@ int checkenv(char **p)
  */
 int main()
 {
-	char *b = NULL, *token, *delim = " \n", **p, prompt[] = "($) ";
+	char *strinput = NULL, *token, *delim = " \n", **storetoken, prompt[] = "($) ";
 	char *cmdinpath;
 	int readnum, i = 0;
 	size_t len = 0;
@@ -287,53 +289,62 @@ int main()
 	PDIRECT *head;
 
 	p = malloc(10 * sizeof(char *));
-	head = linkedpath();
+
+	if (p == NULL)
+		return (0);
+
+	head = linkedpath(); /** link list of the entire path */
 	while (1)
 	{
 
+/** writes command prompt and gets standard input and tokenenizes input */
 		write(STDOUT_FILENO, prompt, 4);
 		i = 0;
-		readnum = getline(&b, &len, stdin);
+
+		readnum = getline(&strinput, &len, stdin);
+
 		if (readnum == -1)
 			exit(100);
-		//printf("Chars read from line: %d, length: %zu\n", readnum, len);
 
-		token = strtok(b, delim);
+		token = strtok(strinput, delim);
 
-		p[i++] = token;
+		storetoken[i++] = token;
 
 		while (token != NULL)
 		{
 			token = strtok(NULL, delim);
-			p[i++] = token;
+			storetoken[i++] = token;
 		}
 
 		i = 0;
-		/*
-		while (p[i] != NULL)
-		{
-			printf(":%s:\n", p[i++]);
-		}*/
 
 		childpid = fork();
+
+		if (childpid == -1)
+			exit(100);
+
+/** if childpid is 0 that means we are in the child process */
 		if (childpid == 0)
 		{
 			//checkforbuiltins()
-			checkexit(p);
-			if (checkenv(p))
+			checkexit(storetoken); /** checks to see if the token says exit */
+
+			if (checkenv(storetoken)) /** checks if the token says env (builtin)") */
 				continue;
-			execve(p[0], p, NULL);
-			cmdinpath = findcommand(head, p[0]);
-			
+
+			execve(p[0], storetoken, NULL);
+
+			cmdinpath = findcommand(head, storetoken[0]); /** goes through the PATH (head linked list) and looks at first command **/
+
 			//not sure if this works and might lose memory this way cuz of malloc
 			//TODO: copy to a buffer and then free the heap variable;
-			execve(cmdinpath, p, NULL);
+			execve(cmdinpath, storetoken, NULL);
 			//any code that runs here is the error message because exec didnt call
 		}
-		else
+		else /** if childpid is more than 0 then we're in parent process*/
 		{
 			wait(NULL);
-			checkexit(p);
+			checkexit(storetoken); 
 		}
 	}
 	return (0);
