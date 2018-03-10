@@ -95,12 +95,12 @@ char *findcommand(PDIRECT *head, char *f)
 	char *buf;
 	int flen = 0, dirlen = 0, i, j;
 
-	flen = _strlen(f);   
+	flen = _strlen(f);
 	while(head)
 	{
 		dirlen = _strlen(head->s);
 
-		buf = malloc(sizeof(char) * (flen + dirlen));
+		buf = malloc(sizeof(char) * (flen + dirlen) + 1);
 		if (!buf)
 			return (NULL);
 
@@ -122,7 +122,7 @@ char *findcommand(PDIRECT *head, char *f)
 		}
 
 		free(buf);
-		head = head->next; 
+		head = head->next;
 	}
 
 	return (NULL);
