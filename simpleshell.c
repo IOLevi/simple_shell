@@ -1,4 +1,3 @@
-#include "holberton.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +6,11 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+/**
+ * struct direc - struct to hold linked list of PATH values
+ * @s: directory path
+ * @next: pointer to next node
+ */
 typedef struct direc
 {
 	char *s;
@@ -14,7 +18,11 @@ typedef struct direc
 
 } PDIRECT;
 
-
+/**
+ * *_getenv - returns an environmental variable value
+ * @name: key to access the env value
+ * Return: pointer to the value
+ */
 char *_getenv(const char *name)
 {
 	extern char **environ;
@@ -47,6 +55,10 @@ char *_getenv(const char *name)
 	return (NULL);
 }
 
+/**
+ * linkedpath - builds a linked list of the PATH
+ * Return: pointer to head of the linked list
+ */
 PDIRECT *linkedpath(void)
 {
 	char *path, *token = NULL, *delim = ":";
@@ -77,6 +89,11 @@ PDIRECT *linkedpath(void)
 	return (head);
 }
 
+/**
+ * _strlen - finds the length of a string
+ * @s: pointer to the string
+ * Return: the length of the string, or zero if empty
+ */
 int _strlen(char *s)
 {
 	int i = 0;
@@ -89,18 +106,33 @@ int _strlen(char *s)
 	return (i);
 }
 
+/**
+ * findcommand - uses stat to find a file in the path
+ * @head: head pointer to the linked list of path directories
+ * @f: user entered command to check in the path
+ * Return: pointer to full path to a command if it exists; otherwise null;
+ */
 char *findcommand(PDIRECT *head, char *f)
 {
 	struct stat st;
 	char *buf;
 	int flen = 0, dirlen = 0, i, j;
 
+	/* works 1:11pm evanday
+	while (head)
+	{
+		printf("%s\n", head->s);
+		head = head->next;
+	} */
+
+	//printf("%s\n", f); also works
 	flen = _strlen(f);
+	//printf("%d\n", flen); also works
 	while(head)
 	{
 		dirlen = _strlen(head->s);
 
-		buf = malloc(sizeof(char) * (flen + dirlen) + 1);
+		buf = malloc(sizeof(char) * (flen + dirlen) + 2);
 		if (!buf)
 			return (NULL);
 
@@ -109,12 +141,13 @@ char *findcommand(PDIRECT *head, char *f)
 		{
 			buf[i] = (head->s)[i];
 		}
-		for (j = i; j < flen + i; j++)
+		buf[i++] = '/';
+		for (j = 0; j < flen; j++)
 		{
-			buf[j] = f[j];
+			buf[j + i] = f[j];
 		}
-		buf[j] = '\0';
-
+		buf[j + i] = '\0';
+		
 		if (stat(buf, &st) == 0)
 		{
 			return (buf);
@@ -162,7 +195,7 @@ int _atoi(char *s)
 	{
 		if (*s >= '0' && *s <= '9')
 		{
-			sum *= 0;
+			sum *= 10;
 			sum = sum + (*s - '0');
 			s++;
 		}
@@ -176,30 +209,34 @@ int _atoi(char *s)
 }
 
 /**
- * checkexit - checks for exit builtin and exits with supplied error #
+ * checkexit - implements exit builtin and exits with supplied error #
  * @p: user command strings
  */
 void checkexit(char **p)
 {
 	char check[] = "exit";
 	int errnumber = 0;
+
 	if (_strcmp(p[0], check) == 0)
 	{
+		printf("I am here\n");
 		//if there is a second argument
 		if (p[1])
 		{
 			errnumber = _atoi(p[1]);
+			printf("%d\n", errnumber);
 		}
 
 		//TODO: add code for freeing everything? or rewrite to return error
 		// number and do the freeing in main
-		errnumber > -1 ? exit(errorno) : exit(0);
+		errnumber > -1 ? exit(errnumber) : exit(0);
 	}
 }
 
 /**
  * idea to use a function to check for builtins...not sure
  */
+/*
 void checkforbuiltins(char **p)
 {
 	//loop through
@@ -208,11 +245,14 @@ void checkforbuiltins(char **p)
 
 
 	if (_strcmp(*p, builtins[i]))
-}
+} */
 
 /**
- * envbuiltin - writes environment
+ * checkenv - implements the env builtin command
+ * @p: user supplies command line arguments
+ * Return: returns 1 if user entered the command; zero otherwise
  */
+
 int checkenv(char **p)
 {
 	extern char **environ;
@@ -224,6 +264,7 @@ int checkenv(char **p)
 		while (environ[i])
 		{
 			write(STDOUT_FILENO, environ[i], _strlen(environ[i]));
+			write(STDOUT_FILENO, "\n", 1);
 			i++;
 		}
 		return (1);
@@ -232,6 +273,10 @@ int checkenv(char **p)
 	return (0);
 }
 
+/**
+ * main - custom very lightweight shell
+ * Return: 0
+ */
 int main()
 {
 	char *b = NULL, *token, *delim = " \n", **p, prompt[] = "($) ";
@@ -248,8 +293,8 @@ int main()
 		write(STDOUT_FILENO, prompt, 4);
 		i = 0;
 		readnum = getline(&b, &len, stdin);
-
-		printf("Chars read from line: %d, length: %zu\n", readnum, len);
+		
+		//printf("Chars read from line: %d, length: %zu\n", readnum, len);
 
 		token = strtok(b, delim);
 
@@ -262,10 +307,11 @@ int main()
 		}
 
 		i = 0;
+		/*
 		while (p[i] != NULL)
 		{
 			printf(":%s:\n", p[i++]);
-		}
+		}*/
 
 		childpid = fork();
 		if (childpid == 0)
@@ -276,6 +322,7 @@ int main()
 				continue;
 			execve(p[0], p, NULL);
 			cmdinpath = findcommand(head, p[0]);
+			
 			//not sure if this works and might lose memory this way cuz of malloc
 			//TODO: copy to a buffer and then free the heap variable;
 			execve(cmdinpath, p, NULL);
@@ -284,6 +331,7 @@ int main()
 		else
 		{
 			wait(NULL);
+			checkexit(p);
 		}
 	}
 	return (0);
