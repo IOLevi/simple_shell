@@ -176,11 +176,11 @@ char *findcommand(PDIRECT *head, char *commandinput)
 	int commandinputlen = 0, dirlen = 0, i, j;
 
 	/* works 1:11pm evanday
-	while (head)
-	{
-		printf("%s\n", head->s);
-		head = head->next;
-	} */
+	   while (head)
+	   {
+	   printf("%s\n", head->s);
+	   head = head->next;
+	   } */
 
 	//printf("%s\n", f); also works
 	commandinputlen= _strlen(commandinput);
@@ -235,8 +235,9 @@ int _strcmp(char *s1, char *s2)
 			return (s1[i] - s2[i]);
 		i++;
 	}
-	return (0);
-
+	if (s1[i] == '\0' && s2[i] == '\0')
+		return (0);
+	return (-1);
 }
 
 /**
@@ -334,13 +335,14 @@ int main(int argc, char **argv)
 
 	// TODO: look into adding signal handling
 	/*
-	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
-    	signal(SIGINT, ignore);
+	  if (signal(SIGINT, SIG_IGN) != SIG_IGN)
+	  signal(SIGINT, ignore);
 	*/
 	storetoken = malloc(10 * sizeof(char *));
 	if (storetoken == NULL)
 		return (0);
 	head = linkedpath(); /** link list of the entire path */
+	signal(SIGINT, SIG_IGN);
 	while (1)
 	{
 		write(STDOUT_FILENO, prompt, 4);
