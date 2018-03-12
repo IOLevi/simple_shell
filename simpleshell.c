@@ -21,7 +21,7 @@ typedef struct direc
 } PDIRECT;
 
 /**
- * __exit - gracefully exits by freeing all malloced memory 
+ * __exit - gracefully exits by freeing all malloced memory
  * @errnum: exits with this error number
  * @p: heap array of char pointers used to store comands
  * @getline: pointer to malloc space from getline function call
@@ -34,7 +34,6 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcomman
 
 	free(p);
 	free(getline);
-	
 	//free linked list
 	while (head)
 	{
@@ -92,7 +91,68 @@ int _strlen(char *s)
 
 	return (i);
 }
+/**
+ * _strok - funtion that tokenizes a string (resembles strtok
+ *@s: string to tokenize
+ *@delim: deliminator for string
+ *
+ *Return: token. Otherwise 0.
+ */
+char * _strtok(char *s, char *delim)
+{
+        int i = 0, delimit = 0, y = 0, x = 0, length = 0;
+        static char *scopy;
+        char *token = NULL;
 
+        if (s == NULL)
+        {
+                scopy++;
+		if (*scopy == '\n' || *scopy == '\0')
+			return (NULL);
+                s = scopy;
+		free(token);
+        }
+        else
+                scopy = s;
+
+	for ( length = 0; s[length] != '\0'; length++)
+		;
+
+	while (s[i] != '\0')
+	{
+		delimit = 0;
+
+		while (delim[delimit] != '\0') /** goes through deliminators */
+		{
+			if (delim[delimit] == s[i])
+			{
+				s[i] = '\0';
+				break;
+			}
+                        delimit++;
+		}
+                i++;
+	}
+
+        for (x = 0; s[x] != '\0'; x++) /** length of word */
+		;
+
+	token = malloc(sizeof(char) * x);
+
+	if (token == NULL)
+		return (0);
+
+	x = 0;
+
+	while (*scopy != '\0') /** adding the word to token */
+	{
+		token[x] = *scopy;
+		scopy++;
+		x++;
+	}
+
+        return (token);
+}
 /**
  * errmessage - prints error message when command not found
  * @c: user command
@@ -169,13 +229,13 @@ PDIRECT *linkedpath(void)
 
 	path = _getenv("PATH");
 
-	token = strtok(path, delim);
+	token = _strtok(path, delim);
 	head->s = token;
 
 	temp = head;
 	while (token != NULL)
 	{
-		token = strtok(NULL, delim);
+		token = _strtok(NULL, delim);
 		if (token != NULL)
 		{
 			temp2 = malloc(sizeof(PDIRECT));
@@ -370,33 +430,39 @@ int main(int argc, char **argv)
 		readnum = getline(&strinput, &len, stdin);
 		if (readnum == -1)
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
-		token = strtok(strinput, delim);
+		token = _strtok(strinput, delim);
+
 		//TODO: when size == zero, just restore the prompt. Currently, getline is segfaulting
 		//when the user enters in only spaces (or nothing).
 		size = tokencount(strinput);
+
 		storetoken = malloc(sizeof(char *) * size);
 		//TODO: if storetoken returns NULL return 0
 		storetoken[i++] = token;
-
 		while (token != NULL)
 		{
-			token = strtok(NULL, delim);
+			token = _strtok(NULL, delim);
 			storetoken[i++] = token;
+
 		}
 
 		i = 0;
-
+		while(storetoken[i] != '\0')
+		{
+			printf("%s\n", storetoken[i++]);
+		}
+		i = 0;
 		childpid = fork();
 		if (childpid == -1)
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
-		
+
 		if (childpid == 0)
 		{
 			if (errnum = checkexit(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
-			if (checkenv(storetoken)) 
+			if (checkenv(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
-			execve(storetoken[0], storetoken, NULL);
+ 			execve(storetoken[0], storetoken, NULL);
 			cmdinpath = findcommand(head, storetoken[0]);
 			//not sure if this works and might lose memory this way cuz of malloc
 			//TODO: copy to a buffer and then free the heap variable;
