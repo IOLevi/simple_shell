@@ -65,7 +65,7 @@ void _itoa(int i, char *t)
 		t[0] = '0';
 		t[1] = '\0';
 	}
-		
+
 	while (i != 0)
 	{
 		rem = i % 10;
@@ -216,14 +216,12 @@ char *_strdup(char *s)
  * @p: pointer to user entered commands
  * Return: 1 if successful
  */
-int changedir(char **p)
+char *changedir(char **p, char *predirect)
 {
 	char cd[] = "cd";
 	char tilde[] = "~";
 	char dash[] = "-";
 	char *s;
-	char *cwdbuff, *copy = NULL;
-	size_t size = 120;
 
 	if (_strcmp(p[0], cd) == 0)
 	{
@@ -231,28 +229,28 @@ int changedir(char **p)
 		if (_strcmp(p[1], tilde) == 0)
 		{
 			s = getenv("HOME");
-			copy = _strdup(getenv("PWD"));
-			printf("copy %s\n", copy);
+			predirect = _strdup(getenv("PWD"));
 			chdir(s);
+			return (predirect);
 
 		}
 		else if(_strcmp(p[1], dash) == 0)
 		{
 
-			printf("Here: %s\n", copy);
-			chdir(copy);
+			chdir(predirect);
+			return (predirect);
 		}
 		else
 		{
-			copy = _strdup(getenv("PWD"));
-			printf("copy %s 2\n", copy);
+			predirect = _strdup(getenv("PWD"));
 			chdir(p[1]);
+			return (predirect);
 		}
 
-		return (1);
+
 	}
 
-	return (0);
+	return (predirect);
 }
 
 /**
@@ -518,16 +516,18 @@ int main(int argc, char **argv)
 {
 	//TODO: initialized all to NULL to account for _Exit. Make sure it works. 
 	char *strinput = NULL, *token = NULL, **storetoken = NULL, prompt[] = "($) ";
-	char *cmdinpath = NULL, *delim = " \n";
+	char *cmdinpath = NULL, *delim = " \n", *predirect = NULL;
 	int readnum, i = 0, errnum = 0, size = 0, counter = 0;
 	size_t len = 0;
 	pid_t childpid;
 	PDIRECT *head = NULL;
 
+		predirect = getenv("PWD");
 	head = linkedpath(); /** link list of the entire path */
 	signal(SIGINT, SIG_IGN);
 	while (1)
 	{
+
 		counter++;
 		write(STDOUT_FILENO, prompt, 4);
 		i = 0;
@@ -552,7 +552,8 @@ int main(int argc, char **argv)
 			storetoken[i++] = token;
 
 		}
-
+		predirect = changedir(storetoken, predirect);
+		printf("predirect: %s\n", predirect);
 		i = 0;
 		childpid = fork();
 		if (childpid == -1)
@@ -564,8 +565,7 @@ int main(int argc, char **argv)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			if (checkenv(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
-			if (changedir(storetoken))
-				__exit(errnum, storetoken, strinput, head, cmdinpath);
+
  			execve(storetoken[0], storetoken, NULL);
 			cmdinpath = findcommand(head, storetoken[0]);
 			//not sure if this works and might lose memory this way cuz of malloc
@@ -579,7 +579,7 @@ int main(int argc, char **argv)
 			wait(NULL);
 			if ((errnum = checkexit(storetoken)) !=-1)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
-			changedir(storetoken);
+
 			free(storetoken);
 		}
 	}
