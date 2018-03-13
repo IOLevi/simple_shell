@@ -47,13 +47,12 @@ int main(int argc __attribute__ ((unused)), char **argv)
 			storetoken[i++] = token;
 		}
 		i = 0;
-		
+
 		/* builtins */
 		CDvalue = changedir(storetoken, &predirect);
-		if (CDvalue  == -1)
+		if (CDvalue  == -1) /** CD into non exsistant directory */
 			CDerrmessage(storetoken, argv[0], counter);
 
-		
 		/* fork for execve */
 		childpid = fork();
 
@@ -63,16 +62,16 @@ int main(int argc __attribute__ ((unused)), char **argv)
 		if (childpid == 0)
 		{
 
-			if (checkenv(storetoken))
+			if (checkenv(storetoken)) /** checks to see if token is env */
 				__exit(errnum, storetoken, strinput, head, cmdinpath, predirect.s);
-			cerrnum = checkexit(storetoken);
+			cerrnum = checkexit(storetoken); /** checks to see if token says  exit */
 			if (cerrnum != -1)
 				__exit(cerrnum, storetoken, strinput, head, cmdinpath, predirect.s);
 
 			execve(storetoken[0], storetoken, environ);
 			cmdinpath = findcommand(head, storetoken[0]);
 			execve(cmdinpath, storetoken, environ);
-			if (!predirect.boo)
+			if (!predirect.boo) /** if CD happened */
 				errmessage(storetoken, argv[0], counter);
 			errnum = 0;
 			__exit(errnum, storetoken, strinput, head, cmdinpath, predirect.s);
@@ -80,7 +79,7 @@ int main(int argc __attribute__ ((unused)), char **argv)
 		else /** if childpid is more than 0 then we're in parent process*/
 		{
 			wait(NULL);
-			cerrnum = checkexit(storetoken);
+			cerrnum = checkexit(storetoken); /** checks to see if token is exit */
 			if (cerrnum != -1)
 				__exit(cerrnum, storetoken, strinput, head, cmdinpath, predirect.s);
 
