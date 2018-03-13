@@ -127,6 +127,7 @@ char *findcommand(PDIRECT *head, char *commandinput)
 
 	char *buf;
 	int commandinputlen = 0, dirlen = 0, i, j;
+	struct stat st;
 
 	commandinputlen = _strlen(commandinput);
 	while (head != NULL)
