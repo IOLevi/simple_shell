@@ -30,7 +30,7 @@ int changedir(char **p, CHDIRECT *predirect)
 		}
 		else if (_strcmp(p[1], dash) == 0)
 		{
-			temp = _strdup(_getenv("PWD"));
+			temp = _strdup(_getenv("PWD")); 
 			chdir(predirect->s);
 			write(STDOUT_FILENO, predirect->s, _strlen(predirect->s));
 			write(STDOUT_FILENO, "\n", 1);

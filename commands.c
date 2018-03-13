@@ -17,10 +17,10 @@ int tokencount(char *s)
 	while (s[i] != '\0')
 	{
 		tokencounter++;
-		while (s[i] != ' ' && s[i] != '\0')
+		while (s[i] != ' ' && s[i] != '\0')/** goes through all characters */
 			i++;
 
-		while (s[i] == ' ' && s[i] != '\0')
+		while (s[i] == ' ' && s[i] != '\0') /** goes through all spaces */
 			i++;
 
 
@@ -43,7 +43,7 @@ char *_strtok(char *s, char *delim)
 	if (s != NULL)
 	{
 		length = _strlen(s);
-		while (s[i] != '\0')
+		while (s[i] != '\0') /** replaces delim with null byte*/
 		{
 			for (x = 0; delim[x] != '\0'; x++)
 			{
@@ -53,15 +53,15 @@ char *_strtok(char *s, char *delim)
 			i++;
 		}
 		i = 0;
-		while (s[i] == '\0' && i < length)
+		while (s[i] == '\0' && i < length) /** removes leading null bytes*/
 			i++;
 
-		spoint = i;
+		spoint = i; /**spoint is now start of string */
 
 		if (s[i] != '\0')
 		{
-			copy = s;
-			return (s + i);
+			copy = s; /** makes string static */
+			return (s + i); /** return start of string */
 		}
 		return (NULL);
 	}
@@ -69,9 +69,9 @@ char *_strtok(char *s, char *delim)
 	{
 		i = spoint;
 		s = copy;
-		while (s[i] != '\0' && i < length)
+		while (s[i] != '\0' && i < length) /**goes through characters */
 			i++;
-		while (s[i] == '\0' && i < length)
+		while (s[i] == '\0' && i < length) /**goes through null bytes */
 			i++;
 		spoint = i;
 		if (s[i] != '\0')

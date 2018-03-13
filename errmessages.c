@@ -42,5 +42,6 @@ void CDerrmessage(char **c, char *p, int i)
 	write(STDOUT_FILENO, ": can't cd to ", 14);
 	write(STDOUT_FILENO, c[1], _strlen(c[1]));
 	write(STDOUT_FILENO, "\n", 1);
+
 	free(t);
 }
