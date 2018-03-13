@@ -7,9 +7,10 @@
  */
 int main(int argc __attribute__ ((unused)), char **argv)
 {
-	char *strinput = NULL, *token = NULL, **storetoken = NULL, prompt[] = "($) ";
-	char *cmdinpath = NULL, *delim = "\n ";
-	int readnum, i = 0, errnum = 0, size = 0, counter = 0, CDvalue = 0, cerrnum = 0;
+	char *strinput = NULL, *token = NULL, **storetoken = NULL;
+	char *cmdinpath = NULL, *delim = "\n ",  prompt[] = "($) ";
+	int readnum, i = 0, errnum = 0, size = 0, counter = 0, CDvalue = 0;
+	int  cerrnum = 0;
 	size_t len = 0;
 	pid_t childpid;
 	PDIRECT *head = NULL;
