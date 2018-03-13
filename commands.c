@@ -126,7 +126,7 @@ char *findcommand(PDIRECT *head, char *commandinput)
 
 	char *buf;
 	int commandinputlen = 0, dirlen = 0, i, j;
-	struct stat st;
+
 
 	commandinputlen = _strlen(commandinput);
 	while (head != NULL)
@@ -148,7 +148,7 @@ char *findcommand(PDIRECT *head, char *commandinput)
 		}
 		buf[j + i] = '\0';
 
-		if (stat(buf, &st) == 0)
+		if (access(buf, X_OK) == 0)
 		{
 			return (buf);
 
