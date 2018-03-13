@@ -63,9 +63,9 @@ int main(int argc __attribute__ ((unused)), char **argv)
 			if (checkenv(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 
-			execve(storetoken[0], storetoken, NULL);
+			execve(storetoken[0], storetoken, environ);
 			cmdinpath = findcommand(head, storetoken[0]);
-			execve(cmdinpath, storetoken, NULL);
+			execve(cmdinpath, storetoken, environ);
 			if (!predirect.boo)
 				errmessage(storetoken, argv[0], counter);
 			errnum = 0;
