@@ -11,6 +11,7 @@ typedef struct chdirect
 {
 	char *s;
 	int boo;
+
 } CHDIRECT;
 /**
  * struct direc - struct to hold linked list of PATH values
@@ -34,6 +35,7 @@ typedef struct direc
  */
 void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcommand)
 {
+	unsigned int i = 0;
 	PDIRECT *tmp;
 
 	if (p)
@@ -117,7 +119,6 @@ int tokencount(char *s)
 
 	}
 	return (tokencounter);
-
 }
 /**
  * _strlen - finds the length of a string
@@ -144,58 +145,44 @@ int _strlen(char *s)
  */
 char * _strtok(char *s, char *delim)
 {
-        int i = 0, delimit = 0, y = 0, x = 0, length = 0;
-        static char *scopy;
-        char *token = NULL;
+	static int spoint = 0;
+	unsigned int i = 0, x = 0;
+	static length;
 
-        if (s == NULL)
-        {
-                scopy++;
-		if (*scopy == '\n' || *scopy == '\0')
-			return (NULL);
-                s = scopy;
 
-        }
-        else
-                scopy = s;
-
-	for ( length = 0; s[length] != '\0'; length++)
-		;
-
-	while (s[i] != '\0')
+	if (s != NULL)
 	{
-		delimit = 0;
-
-		while (delim[delimit] != '\0') /** goes through deliminators */
+		length = _strlen(s);
+		while(s[i] != '\n')
 		{
-			if (delim[delimit] == s[i])
+			for(x = 0; delim[x] != '\0'; x++)
 			{
-				s[i] = '\0';
-				break;
+				if (s[i] == delim[x])
+					s[i] = '\0';
 			}
-                        delimit++;
 		}
-                i++;
+		i = 0;
+
+		while(s[i] == '\0' && i < length)
+			i++;
+				spoint = i;
+		if (s[i] != '\0')
+			return (s + i);
+		return (NULL);
 	}
 
-        for (x = 0; s[x] != '\0'; x++) /** length of word */
-		;
-
-	token = malloc(sizeof(char) * x);
-
-	if (token == NULL)
-		return (0);
-
-	x = 0;
-
-	while (*scopy != '\0') /** adding the word to token */
+	if (s == NULL)
 	{
-		token[x] = *scopy;
-		scopy++;
-		x++;
+		i = spoint;
+		while(s[i] != '\0' && i < length)
+			i++;
+		while(s[i] == '\0' && i < length)
+			i++;
+		spoint = i;
+		if (s[i] != '\0')
+			return (s + i);
+		return (NULL);
 	}
-
-        return (token);
 }
 /**
  *_strdup - duplicates a string
@@ -557,27 +544,34 @@ int main(int argc, char **argv)
 		storetoken = malloc(sizeof(char *) * size);
 		//TODO: if storetoken returns NULL return 0
 		storetoken[i++] = token;
+		free(token);
 		while (token != NULL)
 		{
 			token = _strtok(NULL, delim);
 			storetoken[i++] = token;
-
+			free(token);
+		}
+		i = 0;
+		while(storetoken[i] != NULL)
+		{
+			printf("%s\n", storetoken[i++]);
 		}
 		changedir(storetoken, &predirect);
 
-		i = 0;
 		childpid = fork();
+
 		if (childpid == -1)
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 
 		if (childpid == 0)
 		{
+
 			if ((errnum = checkexit(storetoken)) != -1)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			if (checkenv(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 
- 			execve(storetoken[0], storetoken, NULL);
+			execve(storetoken[0], storetoken, NULL);
 			cmdinpath = findcommand(head, storetoken[0]);
 			//not sure if this works and might lose memory this way cuz of malloc
 			//TODO: copy to a buffer and then free the heap variable;
@@ -589,10 +583,15 @@ int main(int argc, char **argv)
 		else /** if childpid is more than 0 then we're in parent process*/
 		{
 			wait(NULL);
+
 			if ((errnum = checkexit(storetoken)) !=-1)
+			{
+
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
+		       	}
 
 			free(storetoken);
+
 		}
 	}
 	return (0);
