@@ -46,6 +46,7 @@ int main(int argc __attribute__ ((unused)), char **argv)
 			storetoken[i++] = token;
 		}
 		i = 0;
+
 		CDvalue = changedir(storetoken, &predirect);
 		if (CDvalue  == -1)
 			CDerrmessage(storetoken, argv[0], counter);

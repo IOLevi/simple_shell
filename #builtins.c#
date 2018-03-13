@@ -5,7 +5,7 @@
  * @p: pointer to user entered commands
  * Return: 1 if successful
  */
-int changedir(char **p, CHDIRECT *predirect)
+void changedir(char **p, CHDIRECT *predirect, int counter)
 {
 	char cd[] = "cd";
 	char tilde[] = "~";
@@ -16,9 +16,8 @@ int changedir(char **p, CHDIRECT *predirect)
 	{
 
 		predirect->boo = 1;
-		if (p[1] == NULL ||  _strcmp(p[1], tilde) == 0)
+		if (_strcmp(p[1], tilde) == 0)
 		{
-
 			s = getenv("HOME");
 			predirect->s = _strdup(getenv("PWD"));
 			chdir(s);
@@ -36,14 +35,14 @@ int changedir(char **p, CHDIRECT *predirect)
 		else
 		{
 			predirect->s = _strdup(getenv("PWD"));
-			if (chdir(p[1]) == -1)
-				return (-1);
+			if (chdir(p[1]) == 0)
+				printf("-1 is right\n");
 		}
 
 
 	}
 
-	return (0);
+	return;
 }
 
 /**
@@ -53,6 +52,7 @@ int changedir(char **p, CHDIRECT *predirect)
  */
 char *_getenv(const char *name)
 {
+	extern char **environ;
 	int i = 0, j, len = 0;
 
 	if (!name)
@@ -66,6 +66,7 @@ char *_getenv(const char *name)
 	while (environ[i])
 	{
 
+		//TODO: I think should add '=' as terminating condition
 		for (j = 0; j < len && *(environ[i] + j) != '\0'; j++)
 		{
 			if (name[j] != *(environ[i] + j))
@@ -87,6 +88,7 @@ char *_getenv(const char *name)
  */
 int checkenv(char **p)
 {
+	extern char **environ;
 	char command[] = "env";
 	int i = 0;
 
