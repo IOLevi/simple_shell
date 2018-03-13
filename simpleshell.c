@@ -15,7 +15,7 @@ int main(int argc __attribute__ ((unused)), char **argv)
 	PDIRECT *head = NULL;
 	CHDIRECT predirect;
 
-	predirect.s = getenv("HOME");
+	predirect.s = _getenv("HOME");
 	head = linkedpath();
 	signal(SIGINT, SIG_IGN);
 	while (1)
