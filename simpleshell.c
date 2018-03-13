@@ -1,5 +1,4 @@
 #include "holberton.h"
-
 /**
  * main - custom very lightweight shell
  * @arc: number of command line arguments
@@ -9,20 +8,20 @@
 int main(int argc, char **argv)
 {
 	char *strinput = NULL, *token = NULL, **storetoken = NULL, prompt[] = "($) ";
-	char *cmdinpath = NULL, *delim = " \n";
-	int readnum, i = 0, errnum = 0, size = 0, counter = 0;
+	char *cmdinpath = NULL, *delim = "\n "; /**changed order of delim for betty */
+	int readnum, i = 0, errnum = 0, size = 0, counter = 0, CDvalue = 0;
 	size_t len = 0;
 	pid_t childpid;
 	PDIRECT *head = NULL;
 	CHDIRECT predirect;
 
 	predirect.s = getenv("HOME");
-	head = linkedpath(); /** link list of the entire path */
+	head = linkedpath();
 	signal(SIGINT, SIG_IGN);
 	while (1)
 	{
-		if (storetoken)
-			free(storetoken);
+		storetoken = NULL;
+
 		predirect.boo = 0;
 		counter++;
 		write(STDOUT_FILENO, prompt, 4);
@@ -34,11 +33,9 @@ int main(int argc, char **argv)
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		}
 		size = tokencount(strinput) + 1;
+
 		if (size == 1)
-		{
-			//free(strinput);
 			continue;
-		}
 		token = _strtok(strinput, delim);
 
 		storetoken = malloc(sizeof(char *) * size);
@@ -49,8 +46,9 @@ int main(int argc, char **argv)
 			storetoken[i++] = token;
 		}
 		i = 0;
-		changedir(storetoken, &predirect);
-
+		CDvalue = changedir(storetoken, &predirect);
+		if (CDvalue  == -1)
+			CDerrmessage(storetoken, argv[0], counter);
 		childpid = fork();
 
 		if (childpid == -1)
@@ -58,8 +56,8 @@ int main(int argc, char **argv)
 
 		if (childpid == 0)
 		{
-
-			if ((errnum = checkexit(storetoken)) != -1)
+			errnum = checkexit(storetoken);
+			if (errnum != -1)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			if (checkenv(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
@@ -74,14 +72,13 @@ int main(int argc, char **argv)
 		else /** if childpid is more than 0 then we're in parent process*/
 		{
 			wait(NULL);
-
-			if ((errnum = checkexit(storetoken)) !=-1)
-			{
-
+			errnum = checkexit(storetoken);
+			if (errnum != -1)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
-		       	}
 
 		}
+		if (storetoken)
+			free(storetoken);
 	}
 	return (0);
 }

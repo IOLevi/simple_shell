@@ -5,7 +5,7 @@
  * @p: pointer to user entered commands
  * Return: 1 if successful
  */
-void changedir(char **p, CHDIRECT *predirect)
+int changedir(char **p, CHDIRECT *predirect)
 {
 	char cd[] = "cd";
 	char tilde[] = "~";
@@ -35,13 +35,14 @@ void changedir(char **p, CHDIRECT *predirect)
 		else
 		{
 			predirect->s = _strdup(getenv("PWD"));
-			chdir(p[1]);
+			if (chdir(p[1]) == -1)
+				return (-1);
 		}
 
 
 	}
 
-	return;
+	return (0);
 }
 
 /**
