@@ -160,4 +160,3 @@ char *findcommand(PDIRECT *head, char *commandinput)
 
 	return (NULL);
 }
-

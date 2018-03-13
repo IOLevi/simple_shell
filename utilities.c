@@ -119,4 +119,3 @@ int _atoi(char *s) /** necessary for exit function when printing exit value*/
 
 	return (sum);
 }
-

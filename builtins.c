@@ -106,4 +106,3 @@ int checkenv(char **p)
 
 	return (0);
 }
-
