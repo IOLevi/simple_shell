@@ -6,6 +6,11 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+/**
+ * struct direc - struct to hold linked list of PATH values
+ * @s: directory path
+ * @next: pointer to next node
+ */
 typedef struct direc
 {
 	char *s;
@@ -13,7 +18,11 @@ typedef struct direc
 
 } PDIRECT;
 
-
+/**
+ * *_getenv - returns an environmental variable value
+ * @name: key to access the env value
+ * Return: pointer to the value
+ */
 char *_getenv(const char *name)
 {
 	extern char **environ;
@@ -46,6 +55,10 @@ char *_getenv(const char *name)
 	return (NULL);
 }
 
+/**
+ * linkedpath - builds a linked list of the PATH
+ * Return: pointer to head of the linked list
+ */
 PDIRECT *linkedpath(void)
 {
 	char *path, *token = NULL, *delim = ":";
@@ -76,6 +89,11 @@ PDIRECT *linkedpath(void)
 	return (head);
 }
 
+/**
+ * _strlen - finds the length of a string
+ * @s: pointer to the string
+ * Return: the length of the string, or zero if empty
+ */
 int _strlen(char *s)
 {
 	int i = 0;
@@ -88,6 +106,12 @@ int _strlen(char *s)
 	return (i);
 }
 
+/**
+ * findcommand - uses stat to find a file in the path
+ * @head: head pointer to the linked list of path directories
+ * @f: user entered command to check in the path
+ * Return: pointer to full path to a command if it exists; otherwise null;
+ */
 char *findcommand(PDIRECT *head, char *f)
 {
 	struct stat st;
@@ -171,7 +195,7 @@ int _atoi(char *s)
 	{
 		if (*s >= '0' && *s <= '9')
 		{
-			sum *= 0;
+			sum *= 10;
 			sum = sum + (*s - '0');
 			s++;
 		}
@@ -185,7 +209,7 @@ int _atoi(char *s)
 }
 
 /**
- * checkexit - checks for exit builtin and exits with supplied error #
+ * checkexit - implements exit builtin and exits with supplied error #
  * @p: user command strings
  */
 void checkexit(char **p)
@@ -200,6 +224,7 @@ void checkexit(char **p)
 		if (p[1])
 		{
 			errnumber = _atoi(p[1]);
+			printf("%d\n", errnumber);
 		}
 
 		//TODO: add code for freeing everything? or rewrite to return error
@@ -223,7 +248,9 @@ void checkforbuiltins(char **p)
 } */
 
 /**
- * checkenv - writes environment
+ * checkenv - implements the env builtin command
+ * @p: user supplies command line arguments
+ * Return: returns 1 if user entered the command; zero otherwise
  */
 
 int checkenv(char **p)
@@ -246,6 +273,10 @@ int checkenv(char **p)
 	return (0);
 }
 
+/**
+ * main - custom very lightweight shell
+ * Return: 0
+ */
 int main()
 {
 	char *b = NULL, *token, *delim = " \n", **p, prompt[] = "($) ";
