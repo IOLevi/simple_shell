@@ -1,4 +1,3 @@
-#include "holberton.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -95,12 +94,21 @@ char *findcommand(PDIRECT *head, char *f)
 	char *buf;
 	int flen = 0, dirlen = 0, i, j;
 
+	/* works 1:11pm evanday
+	while (head)
+	{
+		printf("%s\n", head->s);
+		head = head->next;
+	} */
+
+	//printf("%s\n", f); also works
 	flen = _strlen(f);
+	//printf("%d\n", flen); also works
 	while(head)
 	{
 		dirlen = _strlen(head->s);
 
-		buf = malloc(sizeof(char) * (flen + dirlen) + 1);
+		buf = malloc(sizeof(char) * (flen + dirlen) + 2);
 		if (!buf)
 			return (NULL);
 
@@ -109,12 +117,14 @@ char *findcommand(PDIRECT *head, char *f)
 		{
 			buf[i] = (head->s)[i];
 		}
-		for (j = i; j < flen + i; j++)
+		buf[i++] = '/';
+		for (j = 0; j < flen; j++)
 		{
-			buf[j] = f[j];
+			buf[j + i] = f[j];
 		}
-		buf[j] = '\0';
-
+		buf[j + i] = '\0';
+		
+		printf("%s\n", buf);
 		if (stat(buf, &st) == 0)
 		{
 			return (buf);
@@ -183,8 +193,10 @@ void checkexit(char **p)
 {
 	char check[] = "exit";
 	int errnumber = 0;
+
 	if (_strcmp(p[0], check) == 0)
 	{
+		printf("I am here\n");
 		//if there is a second argument
 		if (p[1])
 		{
@@ -193,13 +205,14 @@ void checkexit(char **p)
 
 		//TODO: add code for freeing everything? or rewrite to return error
 		// number and do the freeing in main
-		errnumber > -1 ? exit(errorno) : exit(0);
+		errnumber > -1 ? exit(errnumber) : exit(0);
 	}
 }
 
 /**
  * idea to use a function to check for builtins...not sure
  */
+/*
 void checkforbuiltins(char **p)
 {
 	//loop through
@@ -208,11 +221,12 @@ void checkforbuiltins(char **p)
 
 
 	if (_strcmp(*p, builtins[i]))
-}
+} */
 
 /**
- * envbuiltin - writes environment
+ * checkenv - writes environment
  */
+
 int checkenv(char **p)
 {
 	extern char **environ;
@@ -224,6 +238,7 @@ int checkenv(char **p)
 		while (environ[i])
 		{
 			write(STDOUT_FILENO, environ[i], _strlen(environ[i]));
+			write(STDOUT_FILENO, "\n", 1);
 			i++;
 		}
 		return (1);
@@ -248,8 +263,8 @@ int main()
 		write(STDOUT_FILENO, prompt, 4);
 		i = 0;
 		readnum = getline(&b, &len, stdin);
-
-		printf("Chars read from line: %d, length: %zu\n", readnum, len);
+		
+		//printf("Chars read from line: %d, length: %zu\n", readnum, len);
 
 		token = strtok(b, delim);
 
@@ -262,10 +277,11 @@ int main()
 		}
 
 		i = 0;
+		/*
 		while (p[i] != NULL)
 		{
 			printf(":%s:\n", p[i++]);
-		}
+		}*/
 
 		childpid = fork();
 		if (childpid == 0)
@@ -276,6 +292,7 @@ int main()
 				continue;
 			execve(p[0], p, NULL);
 			cmdinpath = findcommand(head, p[0]);
+			
 			//not sure if this works and might lose memory this way cuz of malloc
 			//TODO: copy to a buffer and then free the heap variable;
 			execve(cmdinpath, p, NULL);
@@ -284,6 +301,7 @@ int main()
 		else
 		{
 			wait(NULL);
+			checkexit(p);
 		}
 	}
 	return (0);
