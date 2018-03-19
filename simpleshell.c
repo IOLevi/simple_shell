@@ -290,10 +290,12 @@ int main()
 	head = linkedpath();
 	while (1)
 	{
+
 		write(STDOUT_FILENO, prompt, 4);
 		i = 0;
 		readnum = getline(&b, &len, stdin);
-		
+		if (readnum == -1)
+			exit(100);
 		//printf("Chars read from line: %d, length: %zu\n", readnum, len);
 
 		token = strtok(b, delim);
