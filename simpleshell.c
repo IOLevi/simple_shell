@@ -124,7 +124,6 @@ char *findcommand(PDIRECT *head, char *f)
 		}
 		buf[j + i] = '\0';
 		
-		printf("%s\n", buf);
 		if (stat(buf, &st) == 0)
 		{
 			return (buf);
