@@ -66,6 +66,9 @@ PDIRECT *linkedpath(void)
 	PDIRECT *head, *temp, *temp2;
 
 	head = malloc(sizeof(PDIRECT));
+	if (!head)
+		//TODO: if malloc fails want to exit program
+		return (NULL);
 	head->next = NULL;
 
 	path = _getenv("PATH");
@@ -80,6 +83,7 @@ PDIRECT *linkedpath(void)
 		if (token != NULL)
 		{
 			temp2 = malloc(sizeof(PDIRECT));
+			//TODO: if malloc fails want to undo the entire list and exit program
 			temp2->s = token;
 			temp2->next = NULL;
 			temp->next = temp2;
@@ -216,10 +220,13 @@ void checkexit(char **token)
 {
 	char check[] = "exit";
 	int errnumber = 0;
+	pid_t mypid;
+
+	mypid = getpid();
 
 	if (_strcmp(token[0], check) == 0) /** means that the token at position 0 is exit*/
 	{
-		printf("I am here\n");
+		printf("My PID %d\n", mypid);
 		//if there is a second argument
 		if (token[1])
 		{
@@ -330,7 +337,7 @@ int main()
 			checkexit(storetoken); /** checks to see if the token says exit */
 
 			if (checkenv(storetoken)) /** checks if the token says env (builtin)") */
-				continue;
+				exit(100);
 
 			execve(storetoken[0], storetoken, NULL);
 
@@ -339,6 +346,7 @@ int main()
 			//not sure if this works and might lose memory this way cuz of malloc
 			//TODO: copy to a buffer and then free the heap variable;
 			execve(cmdinpath, storetoken, NULL);
+			exit(100);
 			//any code that runs here is the error message because exec didnt call
 		}
 		else /** if childpid is more than 0 then we're in parent process*/
