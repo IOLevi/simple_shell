@@ -26,7 +26,6 @@ typedef struct direc
 char *_getenv(const char *name)
 {
 	extern char **environ;
-	char *finder = NULL;
 	int i = 0, j, len = 0;
 
 	if (!name)
@@ -40,6 +39,7 @@ char *_getenv(const char *name)
 	while (environ[i])
 	{
 
+		//TODO: I think should add '=' as terminating condition
 		for (j = 0; j < len && *(environ[i] + j) != '\0'; j++)
 		{
 			if (name[j] != *(environ[i] + j))
