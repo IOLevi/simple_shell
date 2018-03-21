@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+
 /**
  * struct direc - struct to hold linked list of PATH values
  * @s: directory path
@@ -17,6 +18,33 @@ typedef struct direc
 	struct direc *next;
 
 } PDIRECT;
+
+/**
+ * __exit - gracefully exits by freeing all malloced memory 
+ * @errnum: exits with this error number
+ * @p: heap array of char pointers used to store comands
+ * @getline: pointer to malloc space from getline function call
+ * @head: head of linked list
+ * @findcommand: malloced string path/to/file from PATH function
+ */
+void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcommand)
+{
+	PDIRECT *tmp;
+
+	free(p);
+	free(getline);
+	
+	//free linked list
+	while (head)
+	{
+		tmp = head->next;
+		free(tmp);
+		head = tmp;
+	}
+
+	free(findcommand);
+	exit(errnum);
+}
 
 /**
  * *_getenv - returns an environmental variable value
@@ -215,29 +243,27 @@ int _atoi(char *s) /** necessary for exit function when printing exit value*/
 /**
  * checkexit - implements exit builtin and exits with supplied error #
  * @p: user command strings
+ * Return: If user entered exit, returns entered errnum, or 97 by default; otherwise 0
  */
-void checkexit(char **token)
+int checkexit(char **token)
 {
 	char check[] = "exit";
-	int errnumber = 0;
-	pid_t mypid;
-
-	mypid = getpid();
+	int errnumber = 97;
 
 	if (_strcmp(token[0], check) == 0) /** means that the token at position 0 is exit*/
 	{
-		printf("My PID %d\n", mypid);
-		//if there is a second argument
 		if (token[1])
 		{
 			errnumber = _atoi(token[1]);
-			printf("%d\n", errnumber);
 		}
-
-		//TODO: add code for freeing everything? or rewrite to return error
-		// number and do the freeing in main
-		errnumber > -1 ? exit(errnumber) : exit(0);
+		//_atoi returns -1 if the conversion of ascii to int failed
+		//this would return 97 as default
+		if (errnumber == -1)
+			return (97);
+		else
+			return (errnumber);
 	}
+	return (0);
 }
 
 /**
@@ -288,33 +314,26 @@ int checkenv(char **p)
  */
 int main()
 {
-	char *strinput = NULL, *token, *delim = " \n", **storetoken, prompt[] = "($) ";
-	char *cmdinpath;
-	int readnum, i = 0;
+	//TODO: initialized all to NULL to account for _Exit. Make sure it works. 
+	char *strinput = NULL, *token = NULL, **storetoken = NULL, prompt[] = "($) ";
+	char *cmdinpath = NULL, *delim = " \n";
+	int readnum, i = 0, errnum = 0;
 	size_t len = 0;
 	pid_t childpid;
-	PDIRECT *head;
+	PDIRECT *head = NULL;
 
 	storetoken = malloc(10 * sizeof(char *));
-
 	if (storetoken == NULL)
 		return (0);
-
 	head = linkedpath(); /** link list of the entire path */
 	while (1)
 	{
-
-/** writes command prompt and gets standard input and tokenenizes input */
 		write(STDOUT_FILENO, prompt, 4);
 		i = 0;
-
 		readnum = getline(&strinput, &len, stdin);
-
 		if (readnum == -1)
-			exit(100);
-
+			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		token = strtok(strinput, delim);
-
 		storetoken[i++] = token;
 
 		while (token != NULL)
@@ -326,33 +345,27 @@ int main()
 		i = 0;
 
 		childpid = fork();
-
 		if (childpid == -1)
-			exit(100);
-
-/** if childpid is 0 that means we are in the child process */
+			__exit(errnum, storetoken, strinput, head, cmdinpath);
+		
 		if (childpid == 0)
 		{
-			//checkforbuiltins()
-			checkexit(storetoken); /** checks to see if the token says exit */
-
-			if (checkenv(storetoken)) /** checks if the token says env (builtin)") */
-				exit(100);
-
+			if (errnum = checkexit(storetoken))
+				__exit(errnum, storetoken, strinput, head, cmdinpath);
+			if (checkenv(storetoken)) 
+				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			execve(storetoken[0], storetoken, NULL);
-
-			cmdinpath = findcommand(head, storetoken[0]); /** goes through the PATH (head linked list) and looks at first command **/
-
+			cmdinpath = findcommand(head, storetoken[0]);
 			//not sure if this works and might lose memory this way cuz of malloc
 			//TODO: copy to a buffer and then free the heap variable;
 			execve(cmdinpath, storetoken, NULL);
-			exit(100);
-			//any code that runs here is the error message because exec didnt call
+			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		}
 		else /** if childpid is more than 0 then we're in parent process*/
 		{
 			wait(NULL);
-			checkexit(storetoken); 
+			if (errnum = checkexit(storetoken))
+				__exit(errnum, storetoken, strinput, head, cmdinpath);
 		}
 	}
 	return (0);
