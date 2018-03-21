@@ -38,7 +38,7 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcomman
 	while (head)
 	{
 		tmp = head->next;
-		free(tmp);
+		free(head);
 		head = tmp;
 	}
 
