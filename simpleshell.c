@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <signal.h>
 
 /**
  * struct direc - struct to hold linked list of PATH values
@@ -71,7 +72,8 @@ void errmessage(char **c, char *p)
 {
 	int i = 0;
 	int spaceflag = 0;
-
+// alternative here is to just make a buffer and then throw these items in so you
+// only need one print
 	write(STDOUT_FILENO, p, _strlen(p));
 	write(STDOUT_FILENO, ": 1: ", 5);
 	while (c[i])
@@ -290,25 +292,10 @@ int checkexit(char **token)
 }
 
 /**
- * idea to use a function to check for builtins...not sure
- */
-/*
-void checkforbuiltins(char **p)
-{
-	//loop through
-	int i = 0; 
-	char *builtins[] = {"exit", "env"};
-
-
-	if (_strcmp(*p, builtins[i]))
-} */
-
-/**
  * checkenv - checks to see if the token is the env
  * @p: user supplies command line arguments
  * Return: returns 1 if user entered the command; zero otherwise
  */
-
 int checkenv(char **p)
 {
 	extern char **environ;
@@ -345,6 +332,11 @@ int main(int argc, char **argv)
 	pid_t childpid;
 	PDIRECT *head = NULL;
 
+	// TODO: look into adding signal handling
+	/*
+	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
+    	signal(SIGINT, ignore);
+	*/
 	storetoken = malloc(10 * sizeof(char *));
 	if (storetoken == NULL)
 		return (0);
