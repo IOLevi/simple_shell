@@ -45,6 +45,46 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcomman
 	free(findcommand);
 	exit(errnum);
 }
+/**
+ * _strlen - finds the length of a string
+ * @s: pointer to the string
+ * Return: the length of the string, or zero if empty
+ */
+int _strlen(char *s)
+{
+	int i = 0;
+
+	while (s[i] != '\0')
+	{
+		i++;
+	}
+
+	return (i);
+}
+
+/**
+ * errmessage - prints error message when command not found
+ * @c: user command
+ * @p: pointer to name of the program
+ */
+void errmessage(char **c, char *p)
+{
+	int i = 0;
+	int spaceflag = 0;
+
+	write(STDOUT_FILENO, p, _strlen(p));
+	write(STDOUT_FILENO, ": 1: ", 5);
+	while (c[i])
+	{
+		if (spaceflag)
+			write(STDOUT_FILENO, " ", 1);
+		write(STDOUT_FILENO, c[i], _strlen(c[i]));
+		spaceflag = 1;
+		i++;
+	}
+
+	write(STDOUT_FILENO, ": not found\n", 12);
+}
 
 /**
  * *_getenv - returns an environmental variable value
@@ -119,23 +159,6 @@ PDIRECT *linkedpath(void)
 		}
 	}
 	return (head);
-}
-
-/**
- * _strlen - finds the length of a string
- * @s: pointer to the string
- * Return: the length of the string, or zero if empty
- */
-int _strlen(char *s)
-{
-	int i = 0;
-
-	while (s[i] != '\0')
-	{
-		i++;
-	}
-
-	return (i);
 }
 
 /**
@@ -312,7 +335,7 @@ int checkenv(char **p)
  * main - custom very lightweight shell
  * Return: 0
  */
-int main()
+int main(int argc, char **argv)
 {
 	//TODO: initialized all to NULL to account for _Exit. Make sure it works. 
 	char *strinput = NULL, *token = NULL, **storetoken = NULL, prompt[] = "($) ";
@@ -359,6 +382,7 @@ int main()
 			//not sure if this works and might lose memory this way cuz of malloc
 			//TODO: copy to a buffer and then free the heap variable;
 			execve(cmdinpath, storetoken, NULL);
+			errmessage(storetoken, argv[0]);
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		}
 		else /** if childpid is more than 0 then we're in parent process*/
