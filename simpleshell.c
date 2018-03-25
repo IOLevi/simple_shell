@@ -300,7 +300,7 @@ int _atoi(char *s) /** necessary for exit function when printing exit value*/
 int checkexit(char **token)
 {
 	char check[] = "exit";
-	int errnumber = 97;
+	int errnumber = 0;
 
 	if (_strcmp(token[0], check) == 0) /** means that the token at position 0 is exit*/
 	{
@@ -311,7 +311,8 @@ int checkexit(char **token)
 		//_atoi returns -1 if the conversion of ascii to int failed
 		//this would return 97 as default
 		if (errnumber == -1)
-			return (97);
+			//TODO: matchup behavior to SH. THis would print an error message invalid exit status
+			return (2);
 		else
 			return (errnumber);
 	}
