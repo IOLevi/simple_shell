@@ -46,6 +46,36 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcomman
 	free(findcommand);
 	exit(errnum);
 }
+
+/**
+ * tokencount - returns the number of tokens from the user input
+ * @s: the string returned by getline
+ * Return: the number of tokens, or zero if no input
+ */
+int tokencount(char *s)
+{
+	int tokencounter = 0;
+	int i = 0;
+
+	while (s[i] == ' ' && s[i] != '\0')
+		i++;
+
+	if (s[i] == '\0' || s[i] == '\n')
+		return (0);
+
+	while (s[i] != '\0')
+	{
+		tokencounter++;
+		while(s[i] != ' ' && s[i] != '\0')
+			i++;
+
+		while(s[i] == ' ' && s[i] !='\0')
+			i++;
+
+	}
+	return (tokencounter);
+
+}
 /**
  * _strlen - finds the length of a string
  * @s: pointer to the string
@@ -68,23 +98,19 @@ int _strlen(char *s)
  * @c: user command
  * @p: pointer to name of the program
  */
-void errmessage(char **c, char *p)
+void errmessage(char **c, char *p, int i)
 {
-	int i = 0;
+	char a = i + '0';
+	char s[2] = {a, '\0'};
 	int spaceflag = 0;
 // alternative here is to just make a buffer and then throw these items in so you
 // only need one print
 	write(STDOUT_FILENO, p, _strlen(p));
-	write(STDOUT_FILENO, ": 1: ", 5);
-	while (c[i])
-	{
-		if (spaceflag)
-			write(STDOUT_FILENO, " ", 1);
-		write(STDOUT_FILENO, c[i], _strlen(c[i]));
-		spaceflag = 1;
-		i++;
-	}
-
+	write(STDOUT_FILENO, ": ", 2);
+	write(STDOUT_FILENO, s, 1);
+	write(STDOUT_FILENO, ": ", 2);
+	write(STDOUT_FILENO, " ", 1);
+	write(STDOUT_FILENO, c[0], _strlen(c[0]));
 	write(STDOUT_FILENO, ": not found\n", 12);
 }
 
@@ -328,29 +354,27 @@ int main(int argc, char **argv)
 	//TODO: initialized all to NULL to account for _Exit. Make sure it works. 
 	char *strinput = NULL, *token = NULL, **storetoken = NULL, prompt[] = "($) ";
 	char *cmdinpath = NULL, *delim = " \n";
-	int readnum, i = 0, errnum = 0;
+	int readnum, i = 0, errnum = 0, size = 0, counter = 0;
 	size_t len = 0;
 	pid_t childpid;
 	PDIRECT *head = NULL;
 
-	// TODO: look into adding signal handling
-	/*
-	  if (signal(SIGINT, SIG_IGN) != SIG_IGN)
-	  signal(SIGINT, ignore);
-	*/
-	storetoken = malloc(10 * sizeof(char *));
-	if (storetoken == NULL)
-		return (0);
 	head = linkedpath(); /** link list of the entire path */
 	signal(SIGINT, SIG_IGN);
 	while (1)
 	{
+		counter++;
 		write(STDOUT_FILENO, prompt, 4);
 		i = 0;
 		readnum = getline(&strinput, &len, stdin);
 		if (readnum == -1)
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		token = strtok(strinput, delim);
+		//TODO: when size == zero, just restore the prompt. Currently, getline is segfaulting
+		//when the user enters in only spaces (or nothing).
+		size = tokencount(strinput);
+		storetoken = malloc(sizeof(char *) * size);
+		//TODO: if storetoken returns NULL return 0
 		storetoken[i++] = token;
 
 		while (token != NULL)
@@ -376,7 +400,7 @@ int main(int argc, char **argv)
 			//not sure if this works and might lose memory this way cuz of malloc
 			//TODO: copy to a buffer and then free the heap variable;
 			execve(cmdinpath, storetoken, NULL);
-			errmessage(storetoken, argv[0]);
+			errmessage(storetoken, argv[0], counter);
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		}
 		else /** if childpid is more than 0 then we're in parent process*/
@@ -384,6 +408,7 @@ int main(int argc, char **argv)
 			wait(NULL);
 			if (errnum = checkexit(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
+			free(storetoken);
 		}
 	}
 	return (0);
