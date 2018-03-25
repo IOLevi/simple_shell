@@ -46,7 +46,46 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcomman
 	free(findcommand);
 	exit(errnum);
 }
+/**
+ * _strcmp - compares two strings
+ * @s1: first operand
+ * @s2: second operand
+ *
+ * Return: positive if s1 is bigger, 0 if they are the same, otherwise negative
+ */
+int _strcmp(char *s1, char *s2)
+{
+	int i = 0;
 
+	while (s1[i] != '\0' && s2[i] != '\0')
+	{
+		if (s1[i] != s2[i])
+			return (s1[i] - s2[i]);
+		i++;
+	}
+	if (s1[i] == '\0' && s2[i] == '\0')
+		return (0);
+	return (-1);
+}
+/**
+ * changedir - changes working directory to user entered path
+ * @p: pointer to user entered commands
+ * Return: 1 if successful
+ */
+int changedir(char **p)
+{
+	char cd[] = "cd";
+
+	if (_strcmp(p[0], cd) == 0)
+	{
+		//if p[1] -, ~, or no argument at all
+
+		chdir(p[1]);
+		return (1);
+	}
+
+	return (0);
+}
 /**
  * tokencount - returns the number of tokens from the user input
  * @s: the string returned by getline
@@ -244,27 +283,7 @@ char *findcommand(PDIRECT *head, char *commandinput)
 	return (NULL);
 }
 
-/**
- * _strcmp - compares two strings
- * @s1: first operand
- * @s2: second operand
- *
- * Return: positive if s1 is bigger, 0 if they are the same, otherwise negative
- */
-int _strcmp(char *s1, char *s2)
-{
-	int i = 0;
 
-	while (s1[i] != '\0' && s2[i] != '\0')
-	{
-		if (s1[i] != s2[i])
-			return (s1[i] - s2[i]);
-		i++;
-	}
-	if (s1[i] == '\0' && s2[i] == '\0')
-		return (0);
-	return (-1);
-}
 
 /**
  * _atoi - converts string to integer
@@ -396,6 +415,8 @@ int main(int argc, char **argv)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			if (checkenv(storetoken)) 
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
+			if (changedir(storetoken))
+				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			execve(storetoken[0], storetoken, NULL);
 			cmdinpath = findcommand(head, storetoken[0]);
 			//not sure if this works and might lose memory this way cuz of malloc
@@ -409,6 +430,7 @@ int main(int argc, char **argv)
 			wait(NULL);
 			if (errnum = checkexit(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
+			changedir(storetoken);
 			free(storetoken);
 		}
 	}
