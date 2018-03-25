@@ -314,7 +314,7 @@ int _atoi(char *s) /** necessary for exit function when printing exit value*/
 /**
  * checkexit - implements exit builtin and exits with supplied error #
  * @p: user command strings
- * Return: If user entered exit, returns entered errnum, or 97 by default; otherwise 0
+ * Return: If user entered exit, returns entered errnum, or 0 by default; otherwise -1
  */
 int checkexit(char **token)
 {
@@ -335,7 +335,7 @@ int checkexit(char **token)
 		else
 			return (errnumber);
 	}
-	return (0);
+	return (-1);
 }
 
 /**
@@ -411,7 +411,7 @@ int main(int argc, char **argv)
 		
 		if (childpid == 0)
 		{
-			if (errnum = checkexit(storetoken))
+			if ((errnum = checkexit(storetoken)) >= 0)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			if (checkenv(storetoken)) 
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
@@ -428,7 +428,7 @@ int main(int argc, char **argv)
 		else /** if childpid is more than 0 then we're in parent process*/
 		{
 			wait(NULL);
-			if (errnum = checkexit(storetoken))
+			if ((errnum = checkexit(storetoken)) >= 0)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			changedir(storetoken);
 			free(storetoken);
