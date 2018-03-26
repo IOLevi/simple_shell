@@ -192,6 +192,33 @@ char * _strtok(char *s, char *delim)
         return (token);
 }
 /**
+ * changedir - changes working directory to user entered path
+ * @p: pointer to user entered commands
+ * Return: 1 if successful
+ */
+int changedir(char **p)
+{
+	char cd[] = "cd";
+	char tilde[] = "~";
+	char *s;
+
+	if (_strcmp(p[0], cd) == 0)
+	{
+		if (_strcmp(p[1], tilde) == 0)
+		{
+			s = getenv("HOME");
+			chdir(s);
+
+		}
+		else
+			chdir(p[1]);
+		return (1);
+	}
+
+	return (0);
+}
+
+/**
  * errmessage - prints error message when command not found
  * @c: user command
  * @p: pointer to name of the program
@@ -500,6 +527,8 @@ int main(int argc, char **argv)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			if (checkenv(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
+			if (changedir(storetoken))
+				__exit(errnum, storetoken, strinput, head, cmdinpath);
  			execve(storetoken[0], storetoken, NULL);
 			cmdinpath = findcommand(head, storetoken[0]);
 			//not sure if this works and might lose memory this way cuz of malloc
@@ -513,6 +542,7 @@ int main(int argc, char **argv)
 			wait(NULL);
 			if ((errnum = checkexit(storetoken)) !=-1)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
+			changedir(storetoken);
 			free(storetoken);
 		}
 	}
