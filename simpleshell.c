@@ -192,6 +192,26 @@ char * _strtok(char *s, char *delim)
         return (token);
 }
 /**
+ *_strdup - duplicates a string
+ *@s: string to duplicate
+ *
+ *Return: duplicated string
+ */
+char *_strdup(char *s)
+{
+	char *dup = NULL;
+	unsigned int i, length = 0;
+
+	length = _strlen(s);
+	dup = malloc(sizeof(char) * length);
+//TODO: add if null
+	for(i = 0; s[i] != '\0'; i++)
+	{
+		dup[i] = s[i];
+	}
+	return (dup);
+}
+/**
  * changedir - changes working directory to user entered path
  * @p: pointer to user entered commands
  * Return: 1 if successful
@@ -200,18 +220,35 @@ int changedir(char **p)
 {
 	char cd[] = "cd";
 	char tilde[] = "~";
+	char dash[] = "-";
 	char *s;
+	char *cwdbuff, *copy = NULL;
+	size_t size = 120;
 
 	if (_strcmp(p[0], cd) == 0)
 	{
+
 		if (_strcmp(p[1], tilde) == 0)
 		{
 			s = getenv("HOME");
+			copy = _strdup(getenv("PWD"));
+			printf("copy %s\n", copy);
 			chdir(s);
 
 		}
+		else if(_strcmp(p[1], dash) == 0)
+		{
+
+			printf("Here: %s\n", copy);
+			chdir(copy);
+		}
 		else
+		{
+			copy = _strdup(getenv("PWD"));
+			printf("copy %s 2\n", copy);
 			chdir(p[1]);
+		}
+
 		return (1);
 	}
 
