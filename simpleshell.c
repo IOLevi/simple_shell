@@ -47,6 +47,44 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcomman
 }
 
 /**
+ * _itoa - converts integer to ascii
+ * @i: number to convert
+ * @t: pointer to space for the ascii string
+ */
+void _itoa(int i, char *t)
+{
+	//98
+	//
+	int j;
+	int rem = 0;
+	int counter = 0;
+	char temp;
+
+	if (i == 0)
+	{
+		t[0] = '0';
+		t[1] = '\0';
+	}
+		
+	while (i != 0)
+	{
+		rem = i % 10;
+		t[counter++] = rem + '0';
+		i = i / 10;
+	}
+
+	for (j = 0; j < counter / 2; j++)
+	{
+		temp = t[j];
+		t[j] = t[counter - 1 - j];
+		t[counter - 1 - j] = temp;
+	}
+
+	t[counter] = '\0';
+
+}
+
+/**
  * tokencount - returns the number of tokens from the user input
  * @s: the string returned by getline
  * Return: the number of tokens, or zero if no input
@@ -157,21 +195,23 @@ char * _strtok(char *s, char *delim)
  * errmessage - prints error message when command not found
  * @c: user command
  * @p: pointer to name of the program
+ * @i: counter, indicating number of user commands during life of program
  */
 void errmessage(char **c, char *p, int i)
 {
-	char a = i + '0';
-	char s[2] = {a, '\0'};
-	int spaceflag = 0;
-// alternative here is to just make a buffer and then throw these items in so you
-// only need one print
+	char *t;
+
+	t = malloc(sizeof(char) * i);
+	_itoa(i, t);
 	write(STDOUT_FILENO, p, _strlen(p));
 	write(STDOUT_FILENO, ": ", 2);
-	write(STDOUT_FILENO, s, 1);
+	write(STDOUT_FILENO, t, _strlen(t));
 	write(STDOUT_FILENO, ": ", 2);
-	write(STDOUT_FILENO, " ", 1);
+	//write(STDOUT_FILENO, " ", 1);
 	write(STDOUT_FILENO, c[0], _strlen(c[0]));
 	write(STDOUT_FILENO, ": not found\n", 12);
+
+	free(t);
 }
 
 /**
@@ -376,7 +416,7 @@ int checkexit(char **token)
 		else
 			return (errnumber);
 	}
-	return (0);
+	return (-1);
 }
 
 /**
@@ -429,7 +469,10 @@ int main(int argc, char **argv)
 		i = 0;
 		readnum = getline(&strinput, &len, stdin);
 		if (readnum == -1)
+		{
+			write(STDOUT_FILENO, "\n", 1);
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
+		}
 		token = _strtok(strinput, delim);
 
 		//TODO: when size == zero, just restore the prompt. Currently, getline is segfaulting
@@ -447,18 +490,13 @@ int main(int argc, char **argv)
 		}
 
 		i = 0;
-		while(storetoken[i] != '\0')
-		{
-			printf("%s\n", storetoken[i++]);
-		}
-		i = 0;
 		childpid = fork();
 		if (childpid == -1)
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 
 		if (childpid == 0)
 		{
-			if (errnum = checkexit(storetoken))
+			if ((errnum = checkexit(storetoken)) != -1)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			if (checkenv(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
@@ -473,7 +511,7 @@ int main(int argc, char **argv)
 		else /** if childpid is more than 0 then we're in parent process*/
 		{
 			wait(NULL);
-			if (errnum = checkexit(storetoken))
+			if ((errnum = checkexit(storetoken)) !=-1)
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 			free(storetoken);
 		}
