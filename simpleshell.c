@@ -36,8 +36,10 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcomman
 {
 	PDIRECT *tmp;
 
-	free(p);
-	free(getline);
+	if (p)
+		free(p);
+	if (getline)
+		free(getline);
 	//free linked list
 	while (head)
 	{
@@ -45,8 +47,8 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcomman
 		free(head);
 		head = tmp;
 	}
-
-	free(findcommand);
+	if (findcommand)
+		free(findcommand);
 	exit(errnum);
 }
 
@@ -152,7 +154,7 @@ char * _strtok(char *s, char *delim)
 		if (*scopy == '\n' || *scopy == '\0')
 			return (NULL);
                 s = scopy;
-		free(token);
+
         }
         else
                 scopy = s;
