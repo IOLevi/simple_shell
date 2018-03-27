@@ -7,7 +7,11 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <signal.h>
-
+typedef struct chdirect
+{
+	char *s;
+	int boo;
+} CHDIRECT;
 /**
  * struct direc - struct to hold linked list of PATH values
  * @s: directory path
@@ -216,7 +220,7 @@ char *_strdup(char *s)
  * @p: pointer to user entered commands
  * Return: 1 if successful
  */
-char *changedir(char **p, char *predirect)
+void changedir(char **p, CHDIRECT *predirect)
 {
 	char cd[] = "cd";
 	char tilde[] = "~";
@@ -226,31 +230,33 @@ char *changedir(char **p, char *predirect)
 	if (_strcmp(p[0], cd) == 0)
 	{
 
+		predirect->boo = 1;
 		if (_strcmp(p[1], tilde) == 0)
 		{
 			s = getenv("HOME");
-			predirect = _strdup(getenv("PWD"));
+			predirect->s = _strdup(getenv("PWD"));
 			chdir(s);
-			return (predirect);
+
 
 		}
 		else if(_strcmp(p[1], dash) == 0)
 		{
 
-			chdir(predirect);
-			return (predirect);
+
+			chdir(predirect->s);
+			write(STDOUT_FILENO, predirect->s, _strlen(predirect->s));
+			write(STDOUT_FILENO, "\n", 1);
 		}
 		else
 		{
-			predirect = _strdup(getenv("PWD"));
+			predirect->s = _strdup(getenv("PWD"));
 			chdir(p[1]);
-			return (predirect);
 		}
 
 
 	}
 
-	return (predirect);
+	return;
 }
 
 /**
@@ -516,18 +522,21 @@ int main(int argc, char **argv)
 {
 	//TODO: initialized all to NULL to account for _Exit. Make sure it works. 
 	char *strinput = NULL, *token = NULL, **storetoken = NULL, prompt[] = "($) ";
-	char *cmdinpath = NULL, *delim = " \n", *predirect = NULL;
+	char *cmdinpath = NULL, *delim = " \n";
 	int readnum, i = 0, errnum = 0, size = 0, counter = 0;
 	size_t len = 0;
 	pid_t childpid;
 	PDIRECT *head = NULL;
+	CHDIRECT predirect;
 
-		predirect = getenv("PWD");
+
+	predirect.s = getenv("HOME");
+
 	head = linkedpath(); /** link list of the entire path */
 	signal(SIGINT, SIG_IGN);
 	while (1)
 	{
-
+		predirect.boo = 0;
 		counter++;
 		write(STDOUT_FILENO, prompt, 4);
 		i = 0;
@@ -552,8 +561,8 @@ int main(int argc, char **argv)
 			storetoken[i++] = token;
 
 		}
-		predirect = changedir(storetoken, predirect);
-		printf("predirect: %s\n", predirect);
+		changedir(storetoken, &predirect);
+
 		i = 0;
 		childpid = fork();
 		if (childpid == -1)
@@ -571,7 +580,8 @@ int main(int argc, char **argv)
 			//not sure if this works and might lose memory this way cuz of malloc
 			//TODO: copy to a buffer and then free the heap variable;
 			execve(cmdinpath, storetoken, NULL);
-			errmessage(storetoken, argv[0], counter);
+			if (!predirect.boo)
+				errmessage(storetoken, argv[0], counter);
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		}
 		else /** if childpid is more than 0 then we're in parent process*/
