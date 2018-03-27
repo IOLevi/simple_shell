@@ -101,10 +101,11 @@ int tokencount(char *s)
 {
 	int tokencounter = 0;
 	int i = 0;
-
+	//ls -a
+	
 	while (s[i] == ' ' && s[i] != '\0')
 		i++;
-
+	printf("s[%d] = :%c:\n", i, s[i]);
 	if (s[i] == '\0' || s[i] == '\n')
 		return (0);
 
@@ -116,6 +117,7 @@ int tokencount(char *s)
 
 		while(s[i] == ' ' && s[i] !='\0')
 			i++;
+
 
 	}
 	return (tokencounter);
@@ -147,33 +149,40 @@ char * _strtok(char *s, char *delim)
 {
 	static int spoint = 0;
 	unsigned int i = 0, x = 0;
-	static length;
+	static int length = 0;
+	static char *copy;
 
 
 	if (s != NULL)
 	{
 		length = _strlen(s);
-		while(s[i] != '\n')
+		while(s[i] != '\0')
 		{
 			for(x = 0; delim[x] != '\0'; x++)
 			{
 				if (s[i] == delim[x])
 					s[i] = '\0';
 			}
+			i++;
 		}
 		i = 0;
-
 		while(s[i] == '\0' && i < length)
 			i++;
-				spoint = i;
+
+		spoint = i;
+		
 		if (s[i] != '\0')
+		{
+			copy = s;
 			return (s + i);
+		}
 		return (NULL);
 	}
 
 	if (s == NULL)
 	{
 		i = spoint;
+		s = copy; 
 		while(s[i] != '\0' && i < length)
 			i++;
 		while(s[i] == '\0' && i < length)
@@ -264,7 +273,6 @@ void errmessage(char **c, char *p, int i)
 	write(STDOUT_FILENO, ": ", 2);
 	write(STDOUT_FILENO, t, _strlen(t));
 	write(STDOUT_FILENO, ": ", 2);
-	//write(STDOUT_FILENO, " ", 1);
 	write(STDOUT_FILENO, c[0], _strlen(c[0]));
 	write(STDOUT_FILENO, ": not found\n", 12);
 
@@ -358,16 +366,7 @@ char *findcommand(PDIRECT *head, char *commandinput)
 	char *buf;
 	int commandinputlen = 0, dirlen = 0, i, j;
 
-	/* works 1:11pm evanday
-	   while (head)
-	   {
-	   printf("%s\n", head->s);
-	   head = head->next;
-	   } */
-
-	//printf("%s\n", f); also works
 	commandinputlen= _strlen(commandinput);
-	//printf("%d\n", flen); also works
 	while(head != NULL)
 	{
 		dirlen = _strlen(head->s); /** finds the length of each s in the path */
@@ -376,7 +375,6 @@ char *findcommand(PDIRECT *head, char *commandinput)
 		if (!buf)
 			return (NULL);
 
-		//building a string with the /path/to/cmd
 		for (i = 0; i < dirlen; i++)
 		{
 			buf[i] = (head->s)[i]; /** goes through each string in the list and sets to buf */
@@ -509,7 +507,6 @@ int checkenv(char **p)
  */
 int main(int argc, char **argv)
 {
-	//TODO: initialized all to NULL to account for _Exit. Make sure it works. 
 	char *strinput = NULL, *token = NULL, **storetoken = NULL, prompt[] = "($) ";
 	char *cmdinpath = NULL, *delim = " \n";
 	int readnum, i = 0, errnum = 0, size = 0, counter = 0;
@@ -518,13 +515,13 @@ int main(int argc, char **argv)
 	PDIRECT *head = NULL;
 	CHDIRECT predirect;
 
-
 	predirect.s = getenv("HOME");
-
 	head = linkedpath(); /** link list of the entire path */
 	signal(SIGINT, SIG_IGN);
 	while (1)
 	{
+		if (storetoken)
+			free(storetoken);
 		predirect.boo = 0;
 		counter++;
 		write(STDOUT_FILENO, prompt, 4);
@@ -535,27 +532,22 @@ int main(int argc, char **argv)
 			write(STDOUT_FILENO, "\n", 1);
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		}
+		size = tokencount(strinput) + 1;
+		if (size == 1)
+		{
+			//free(strinput);
+			continue;
+		}
 		token = _strtok(strinput, delim);
 
-		//TODO: when size == zero, just restore the prompt. Currently, getline is segfaulting
-		//when the user enters in only spaces (or nothing).
-		size = tokencount(strinput);
-
 		storetoken = malloc(sizeof(char *) * size);
-		//TODO: if storetoken returns NULL return 0
 		storetoken[i++] = token;
-		free(token);
 		while (token != NULL)
 		{
 			token = _strtok(NULL, delim);
 			storetoken[i++] = token;
-			free(token);
 		}
 		i = 0;
-		while(storetoken[i] != NULL)
-		{
-			printf("%s\n", storetoken[i++]);
-		}
 		changedir(storetoken, &predirect);
 
 		childpid = fork();
@@ -573,8 +565,6 @@ int main(int argc, char **argv)
 
 			execve(storetoken[0], storetoken, NULL);
 			cmdinpath = findcommand(head, storetoken[0]);
-			//not sure if this works and might lose memory this way cuz of malloc
-			//TODO: copy to a buffer and then free the heap variable;
 			execve(cmdinpath, storetoken, NULL);
 			if (!predirect.boo)
 				errmessage(storetoken, argv[0], counter);
@@ -589,8 +579,6 @@ int main(int argc, char **argv)
 
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 		       	}
-
-			free(storetoken);
 
 		}
 	}
