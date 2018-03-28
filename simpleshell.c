@@ -24,12 +24,12 @@ int main(int argc __attribute__ ((unused)), char **argv)
 
 		predirect.boo = 0;
 		counter++;
-		write(STDOUT_FILENO, prompt, 4);
+		if (isatty(STDIN_FILENO))
+			write(STDOUT_FILENO, prompt, 4);
 		i = 0;
 		readnum = getline(&strinput, &len, stdin);
 		if (readnum == -1)
 		{
-			write(STDOUT_FILENO, "\n", 1);
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		}
 		size = tokencount(strinput) + 1;
