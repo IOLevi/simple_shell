@@ -65,6 +65,8 @@ char *_strdup(char *s)
 
 	length = _strlen(s);
 	dup = malloc(sizeof(char) * length);
+	if (!dup)
+		return (NULL);
 	for (i = 0; s[i] != '\0'; i++)
 	{
 		dup[i] = s[i];
@@ -117,3 +119,4 @@ int _atoi(char *s) /** necessary for exit function when printing exit value*/
 
 	return (sum);
 }
+

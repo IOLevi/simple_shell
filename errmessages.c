@@ -44,3 +44,4 @@ void CDerrmessage(char **c, char *p, int i)
 	write(STDOUT_FILENO, "\n", 1);
 	free(t);
 }
+

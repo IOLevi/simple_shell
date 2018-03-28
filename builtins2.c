@@ -50,3 +50,4 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *fc)
 		free(fc);
 	exit(errnum);
 }
+

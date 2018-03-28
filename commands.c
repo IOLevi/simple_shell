@@ -28,11 +28,10 @@ int tokencount(char *s)
 	return (tokencounter);
 }
 /**
- * _strok - funtion that tokenizes a string (resembles strtok
- *@s: string to tokenize
- *@delim: deliminator for string
- *
- *Return: token. Otherwise 0.
+ * _strtok - funtion that tokenizes a string
+ * @s: string to tokenize
+ * @delim: deliminator for string
+ * Return: token. Otherwise 0.
  */
 char *_strtok(char *s, char *delim)
 {
@@ -161,3 +160,4 @@ char *findcommand(PDIRECT *head, char *commandinput)
 
 	return (NULL);
 }
+

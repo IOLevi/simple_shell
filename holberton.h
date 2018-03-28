@@ -50,3 +50,4 @@ int checkenv(char **p);
 int checkexit(char **token);
 void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *fc);
 #endif
+
