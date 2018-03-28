@@ -43,34 +43,7 @@ void changedir(char **p, CHDIRECT *predirect)
 
 	return;
 }
-/**
- * __exit - gracefully exits by freeing all malloced memory
- * @errnum: exits with this error number
- * @p: heap array of char pointers used to store comands
- * @getline: pointer to malloc space from getline function call
- * @head: head of linked list
- * @findcommand: malloced string path/to/file from PATH function
- */
-void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcommand)
-{
-	unsigned int i = 0;
-	PDIRECT *tmp;
 
-	if (p)
-		free(p);
-	if (getline)
-		free(getline);
-	//free linked list
-	while (head)
-	{
-		tmp = head->next;
-		free(head);
-		head = tmp;
-	}
-	if (findcommand)
-		free(findcommand);
-	exit(errnum);
-}
 /**
  * *_getenv - returns an environmental variable value
  * @name: key to access the env value

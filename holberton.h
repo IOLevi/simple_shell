@@ -9,7 +9,6 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <signal.h>
-#endif
 /**
  * struct chdirect - struct to implement cd builtin
  * @s: directory path
@@ -32,3 +31,19 @@ typedef struct direc
 	struct direc *next;
 
 } PDIRECT;
+int _strlen(char *s);
+int _atoi(char *s);
+void _itoa(int i, char *t);
+char *_strdup(char *s);
+int _strcmp(char *s1, char *s2);
+int tokencount(char *s);
+char * _strtok(char *s, char *delim);
+PDIRECT *linkedpath(void);
+char *findcommand(PDIRECT *head, char *commandinput);
+void errmessage(char **c, char *p, int i);
+void changedir(char **p, CHDIRECT *predirect);
+char *_getenv(const char *name);
+int checkenv(char **p);
+int checkexit(char **token);
+void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcommand);
+#endif

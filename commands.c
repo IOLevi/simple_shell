@@ -12,7 +12,6 @@ int tokencount(char *s)
 	
 	while (s[i] == ' ' && s[i] != '\0')
 		i++;
-	printf("s[%d] = :%c:\n", i, s[i]);
 	if (s[i] == '\0' || s[i] == '\n')
 		return (0);
 
