@@ -3,6 +3,7 @@
 /**
  * changedir - changes working directory to user entered path
  * @p: pointer to user entered commands
+ * @predirect: the previous directory
  * Return: 1 if successful
  */
 int changedir(char **p, CHDIRECT *predirect)
@@ -25,7 +26,7 @@ int changedir(char **p, CHDIRECT *predirect)
 
 
 		}
-		else if(_strcmp(p[1], dash) == 0)
+		else if (_strcmp(p[1], dash) == 0)
 		{
 
 
@@ -56,7 +57,9 @@ char *_getenv(const char *name)
 	int i = 0, j, len = 0;
 
 	if (!name)
+	{
 		return (NULL);
+	}
 	else
 	{
 		while (name[len] != '\0')
@@ -92,8 +95,6 @@ int checkenv(char **p)
 
 	if (_strcmp(*p, command) == 0)
 	{
-/** environ is an array of all the values that represent the shell environment*/
-/** this loop prints each environmental variable*/
 		while (environ[i])
 		{
 			write(STDOUT_FILENO, environ[i], _strlen(environ[i]));

@@ -1,7 +1,7 @@
 #include "holberton.h"
 /**
  * main - custom very lightweight shell
- * @arc: number of command line arguments
+ * @argc: number of command line arguments
  * @argv: pointer to command line arguments
  * Return: 0
  */

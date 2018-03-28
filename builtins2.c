@@ -2,15 +2,15 @@
 
 /**
  * checkexit - implements exit builtin and exits with supplied error #
- * @p: user command strings
- * Return: If user entered exit, returns entered errnum, or 97 by default; otherwise 0
+ * @token: user command strings
+ * Return: If user entered exit, returns entered errnum
  */
 int checkexit(char **token)
 {
 	char check[] = "exit";
 	int errnumber = 0;
 
-	if (_strcmp(token[0], check) == 0) /** means that the token at position 0 is exit*/
+	if (_strcmp(token[0], check) == 0)
 	{
 		if (token[1])
 		{
@@ -30,9 +30,9 @@ int checkexit(char **token)
  * @p: heap array of char pointers used to store comands
  * @getline: pointer to malloc space from getline function call
  * @head: head of linked list
- * @findcommand: malloced string path/to/file from PATH function
+ * @fc: malloced string path/to/file from PATH function
  */
-void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcommand)
+void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *fc)
 {
 	PDIRECT *tmp;
 
@@ -46,7 +46,7 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcomman
 		free(head);
 		head = tmp;
 	}
-	if (findcommand)
-		free(findcommand);
+	if (fc)
+		free(fc);
 	exit(errnum);
 }

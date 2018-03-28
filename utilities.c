@@ -65,7 +65,7 @@ char *_strdup(char *s)
 
 	length = _strlen(s);
 	dup = malloc(sizeof(char) * length);
-	for(i = 0; s[i] != '\0'; i++)
+	for (i = 0; s[i] != '\0'; i++)
 	{
 		dup[i] = s[i];
 	}
