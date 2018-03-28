@@ -20,8 +20,8 @@ int changedir(char **p, CHDIRECT *predirect)
 		if (p[1] == NULL ||  _strcmp(p[1], tilde) == 0)
 		{
 
-			s = getenv("HOME");
-			predirect->s = _strdup(getenv("PWD"));
+			s = _getenv("HOME");
+			predirect->s = _strdup(_getenv("PWD"));
 			chdir(s);
 
 
@@ -36,7 +36,7 @@ int changedir(char **p, CHDIRECT *predirect)
 		}
 		else
 		{
-			predirect->s = _strdup(getenv("PWD"));
+			predirect->s = _strdup(_getenv("PWD"));
 			if (chdir(p[1]) == -1)
 				return (-1);
 		}
