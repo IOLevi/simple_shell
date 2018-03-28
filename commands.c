@@ -17,10 +17,10 @@ int tokencount(char *s)
 	while (s[i] != '\0')
 	{
 		tokencounter++;
-		while(s[i] != ' ' && s[i] != '\0')
+		while (s[i] != ' ' && s[i] != '\0')
 			i++;
 
-		while(s[i] == ' ' && s[i] !='\0')
+		while (s[i] == ' ' && s[i] != '\0')
 			i++;
 
 
@@ -34,20 +34,20 @@ int tokencount(char *s)
  *
  *Return: token. Otherwise 0.
  */
-char * _strtok(char *s, char *delim)
+char *_strtok(char *s, char *delim)
 {
-	static int spoint = 0;
+	static int spoint;
 	int i = 0, x = 0;
-	static int length = 0;
+	static int length;
 	static char *copy;
 
 
 	if (s != NULL)
 	{
 		length = _strlen(s);
-		while(s[i] != '\0')
+		while (s[i] != '\0')
 		{
-			for(x = 0; delim[x] != '\0'; x++)
+			for (x = 0; delim[x] != '\0'; x++)
 			{
 				if (s[i] == delim[x])
 					s[i] = '\0';
@@ -55,11 +55,11 @@ char * _strtok(char *s, char *delim)
 			i++;
 		}
 		i = 0;
-		while(s[i] == '\0' && i < length)
+		while (s[i] == '\0' && i < length)
 			i++;
 
 		spoint = i;
-		
+
 		if (s[i] != '\0')
 		{
 			copy = s;
@@ -70,10 +70,10 @@ char * _strtok(char *s, char *delim)
 	else
 	{
 		i = spoint;
-		s = copy; 
-		while(s[i] != '\0' && i < length)
+		s = copy;
+		while (s[i] != '\0' && i < length)
 			i++;
-		while(s[i] == '\0' && i < length)
+		while (s[i] == '\0' && i < length)
 			i++;
 		spoint = i;
 		if (s[i] != '\0')
@@ -125,14 +125,14 @@ PDIRECT *linkedpath(void)
  */
 char *findcommand(PDIRECT *head, char *commandinput)
 {
-	struct stat st; /** struct part of the library to look at stat */
+
 	char *buf;
 	int commandinputlen = 0, dirlen = 0, i, j;
 
-	commandinputlen= _strlen(commandinput);
-	while(head != NULL)
+	commandinputlen = _strlen(commandinput);
+	while (head != NULL)
 	{
-		dirlen = _strlen(head->s); /** finds the length of each s in the path */
+		dirlen = _strlen(head->s);
 
 		buf = malloc(sizeof(char) * (commandinputlen + dirlen) + 2);
 		if (!buf)
@@ -140,7 +140,7 @@ char *findcommand(PDIRECT *head, char *commandinput)
 
 		for (i = 0; i < dirlen; i++)
 		{
-			buf[i] = (head->s)[i]; /** goes through each string in the list and sets to buf */
+			buf[i] = (head->s)[i];
 		}
 		buf[i++] = '/';
 		for (j = 0; j < commandinputlen; j++)

@@ -32,6 +32,7 @@ typedef struct direc
 
 } PDIRECT;
 extern char **environ;
+struct stat st;
 int _strlen(char *s);
 int _atoi(char *s);
 void _itoa(int i, char *t);
