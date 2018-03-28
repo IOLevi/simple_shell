@@ -31,6 +31,7 @@ typedef struct direc
 	struct direc *next;
 
 } PDIRECT;
+extern char **environ;
 int _strlen(char *s);
 int _atoi(char *s);
 void _itoa(int i, char *t);

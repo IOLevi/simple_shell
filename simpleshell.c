@@ -5,7 +5,7 @@
  * @argv: pointer to command line arguments
  * Return: 0
  */
-int main(int argc, char **argv)
+int main(int argc __attribute__ ((unused)), char **argv)
 {
 	char *strinput = NULL, *token = NULL, **storetoken = NULL, prompt[] = "($) ";
 	char *cmdinpath = NULL, *delim = "\n "; /**changed order of delim for betty */

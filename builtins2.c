@@ -16,10 +16,7 @@ int checkexit(char **token)
 		{
 			errnumber = _atoi(token[1]);
 		}
-		//_atoi returns -1 if the conversion of ascii to int failed
-		//this would return 97 as default
 		if (errnumber == -1)
-			//TODO: matchup behavior to SH. THis would print an error message invalid exit status
 			return (2);
 		else
 			return (errnumber);
@@ -37,14 +34,12 @@ int checkexit(char **token)
  */
 void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *findcommand)
 {
-	unsigned int i = 0;
 	PDIRECT *tmp;
 
 	if (p)
 		free(p);
 	if (getline)
 		free(getline);
-	//free linked list
 	while (head)
 	{
 		tmp = head->next;

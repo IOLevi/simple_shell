@@ -6,8 +6,6 @@
  */
 void _itoa(int i, char *t)
 {
-	//98
-	//
 	int j;
 	int rem = 0;
 	int counter = 0;
@@ -67,7 +65,6 @@ char *_strdup(char *s)
 
 	length = _strlen(s);
 	dup = malloc(sizeof(char) * length);
-//TODO: add if null
 	for(i = 0; s[i] != '\0'; i++)
 	{
 		dup[i] = s[i];

@@ -52,7 +52,6 @@ int changedir(char **p, CHDIRECT *predirect)
  */
 char *_getenv(const char *name)
 {
-	extern char **environ;
 	int i = 0, j, len = 0;
 
 	if (!name)
@@ -66,7 +65,6 @@ char *_getenv(const char *name)
 	while (environ[i])
 	{
 
-		//TODO: I think should add '=' as terminating condition
 		for (j = 0; j < len && *(environ[i] + j) != '\0'; j++)
 		{
 			if (name[j] != *(environ[i] + j))
@@ -88,7 +86,6 @@ char *_getenv(const char *name)
  */
 int checkenv(char **p)
 {
-	extern char **environ;
 	char command[] = "env";
 	int i = 0;
 

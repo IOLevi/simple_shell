@@ -8,7 +8,6 @@ int tokencount(char *s)
 {
 	int tokencounter = 0;
 	int i = 0;
-	//ls -a
 
 	while (s[i] == ' ' && s[i] != '\0')
 		i++;
@@ -38,7 +37,7 @@ int tokencount(char *s)
 char * _strtok(char *s, char *delim)
 {
 	static int spoint = 0;
-	unsigned int i = 0, x = 0;
+	int i = 0, x = 0;
 	static int length = 0;
 	static char *copy;
 
@@ -68,8 +67,7 @@ char * _strtok(char *s, char *delim)
 		}
 		return (NULL);
 	}
-
-	if (s == NULL)
+	else
 	{
 		i = spoint;
 		s = copy; 
@@ -91,12 +89,10 @@ char * _strtok(char *s, char *delim)
 PDIRECT *linkedpath(void)
 {
 	char *path, *token = NULL, *delim = ":";
-	int i = 0, j = 0;
 	PDIRECT *head, *temp, *temp2;
 
 	head = malloc(sizeof(PDIRECT));
 	if (!head)
-		//TODO: if malloc fails want to exit program
 		return (NULL);
 	head->next = NULL;
 
@@ -112,7 +108,6 @@ PDIRECT *linkedpath(void)
 		if (token != NULL)
 		{
 			temp2 = malloc(sizeof(PDIRECT));
-			//TODO: if malloc fails want to undo the entire list and exit program
 			temp2->s = token;
 			temp2->next = NULL;
 			temp->next = temp2;
