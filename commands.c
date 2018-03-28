@@ -41,7 +41,6 @@ char *_strtok(char *s, char *delim)
 	static int length;
 	static char *copy;
 
-
 	if (s != NULL)
 	{
 		length = _strlen(s);
