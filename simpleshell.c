@@ -9,7 +9,7 @@ int main(int argc __attribute__ ((unused)), char **argv)
 {
 	char *strinput = NULL, *token = NULL, **storetoken = NULL, prompt[] = "($) ";
 	char *cmdinpath = NULL, *delim = "\n ";
-	int readnum, i = 0, errnum = 0, size = 0, counter = 0, CDvalue = 0;
+	int readnum, i = 0, errnum = 0, size = 0, counter = 0, CDvalue = 0, cerrnum = 0;
 	size_t len = 0;
 	pid_t childpid;
 	PDIRECT *head = NULL;
@@ -57,9 +57,9 @@ int main(int argc __attribute__ ((unused)), char **argv)
 
 		if (childpid == 0)
 		{
-			errnum = checkexit(storetoken);
-			if (errnum != -1)
-				__exit(errnum, storetoken, strinput, head, cmdinpath);
+			cerrnum = checkexit(storetoken);
+			if (cerrnum != -1)
+				__exit(cerrnum, storetoken, strinput, head, cmdinpath);
 			if (checkenv(storetoken))
 				__exit(errnum, storetoken, strinput, head, cmdinpath);
 
@@ -68,14 +68,15 @@ int main(int argc __attribute__ ((unused)), char **argv)
 			execve(cmdinpath, storetoken, NULL);
 			if (!predirect.boo)
 				errmessage(storetoken, argv[0], counter);
+			errnum = 127;
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		}
 		else /** if childpid is more than 0 then we're in parent process*/
 		{
 			wait(NULL);
-			errnum = checkexit(storetoken);
-			if (errnum != -1)
-				__exit(errnum, storetoken, strinput, head, cmdinpath);
+			cerrnum = checkexit(storetoken);
+			if (cerrnum != -1)
+				__exit(cerrnum, storetoken, strinput, head, cmdinpath);
 
 		}
 		if (storetoken)
