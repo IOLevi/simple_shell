@@ -5,7 +5,7 @@
  * @argv: pointer to command line arguments
  * Return: 0
  */
-int main(int argc __attribute__ ((unused)), char **argv, char **env)
+int main(int argc __attribute__ ((unused)), char **argv)
 {
 	char *strinput = NULL, *token = NULL, **storetoken = NULL;
 	char *cmdinpath = NULL, *delim = "\n ",  prompt[] = "($) ";
@@ -15,7 +15,6 @@ int main(int argc __attribute__ ((unused)), char **argv, char **env)
 	pid_t childpid;
 	PDIRECT *head = NULL;
 	CHDIRECT predirect;
-	int e = 0;
 
 	predirect.s = _strdup(_getenv("HOME"));
 	head = linkedpath();
