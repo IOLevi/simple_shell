@@ -31,8 +31,9 @@ int checkexit(char **token)
  * @getline: pointer to malloc space from getline function call
  * @head: head of linked list
  * @fc: malloced string path/to/file from PATH function
+ * @predirect: malloc string of previous directory
  */
-void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *fc)
+void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *fc, char *predirect)
 {
 	PDIRECT *tmp;
 
@@ -48,5 +49,7 @@ void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *fc)
 	}
 	if (fc)
 		free(fc);
+	if (predirect)
+		free(predirect);
 	exit(errnum);
 }

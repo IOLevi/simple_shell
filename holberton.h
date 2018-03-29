@@ -48,6 +48,6 @@ int changedir(char **p, CHDIRECT *predirect);
 char *_getenv(const char *name);
 int checkenv(char **p);
 int checkexit(char **token);
-void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *fc);
+void __exit(int errnum, char **p, char *getline, PDIRECT *head, char *fc, char *predirect);
 #endif
 

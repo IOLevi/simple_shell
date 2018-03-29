@@ -12,6 +12,7 @@ int changedir(char **p, CHDIRECT *predirect)
 	char tilde[] = "~";
 	char dash[] = "-";
 	char *s;
+	char *temp;
 
 	if (_strcmp(p[0], cd) == 0)
 	{
@@ -21,6 +22,7 @@ int changedir(char **p, CHDIRECT *predirect)
 		{
 
 			s = _getenv("HOME");
+			free(predirect->s);
 			predirect->s = _strdup(_getenv("PWD"));
 			chdir(s);
 
@@ -28,22 +30,34 @@ int changedir(char **p, CHDIRECT *predirect)
 		}
 		else if (_strcmp(p[1], dash) == 0)
 		{
-
-
+			temp = _strdup(_getenv("PWD"));
+			printf("temp: %s\n", temp);
+			printf("predirect: %s\n", predirect->s);
 			chdir(predirect->s);
 			write(STDOUT_FILENO, predirect->s, _strlen(predirect->s));
 			write(STDOUT_FILENO, "\n", 1);
+			free(predirect->s);
+			predirect->s = temp;
 		}
 		else
 		{
-			predirect->s = _strdup(_getenv("PWD"));
+			temp = _strdup(_getenv("PWD"));
+
+			printf("temp: %s\n", temp);
+			printf("predirect: %s\n", predirect->s);
 			if (chdir(p[1]) == -1)
+			{
+				free(temp);
 				return (-1);
+			}
+			else
+			{
+				free(predirect->s);
+				predirect->s = temp;
+
+			}
 		}
-
-
 	}
-
 	return (0);
 }
 
