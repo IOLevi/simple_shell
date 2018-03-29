@@ -31,8 +31,6 @@ int changedir(char **p, CHDIRECT *predirect)
 		else if (_strcmp(p[1], dash) == 0)
 		{
 			temp = _strdup(_getenv("PWD"));
-			printf("temp: %s\n", temp);
-			printf("predirect: %s\n", predirect->s);
 			chdir(predirect->s);
 			write(STDOUT_FILENO, predirect->s, _strlen(predirect->s));
 			write(STDOUT_FILENO, "\n", 1);
@@ -42,9 +40,6 @@ int changedir(char **p, CHDIRECT *predirect)
 		else
 		{
 			temp = _strdup(_getenv("PWD"));
-
-			printf("temp: %s\n", temp);
-			printf("predirect: %s\n", predirect->s);
 			if (chdir(p[1]) == -1)
 			{
 				free(temp);

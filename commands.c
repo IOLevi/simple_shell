@@ -94,7 +94,7 @@ PDIRECT *linkedpath(void)
 		return (NULL);
 	head->next = NULL;
 
-	path = _getenv("PATH");
+	path = _strdup(_getenv("PATH"));
 
 	token = _strtok(path, delim);
 	head->s = token;

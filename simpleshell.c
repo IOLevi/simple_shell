@@ -5,7 +5,7 @@
  * @argv: pointer to command line arguments
  * Return: 0
  */
-int main(int argc __attribute__ ((unused)), char **argv)
+int main(int argc __attribute__ ((unused)), char **argv, char **env)
 {
 	char *strinput = NULL, *token = NULL, **storetoken = NULL;
 	char *cmdinpath = NULL, *delim = "\n ",  prompt[] = "($) ";
@@ -15,6 +15,7 @@ int main(int argc __attribute__ ((unused)), char **argv)
 	pid_t childpid;
 	PDIRECT *head = NULL;
 	CHDIRECT predirect;
+	int e = 0;
 
 	predirect.s = _strdup(_getenv("HOME"));
 	head = linkedpath();
@@ -47,10 +48,14 @@ int main(int argc __attribute__ ((unused)), char **argv)
 			storetoken[i++] = token;
 		}
 		i = 0;
-
+		
+		/* builtins */
 		CDvalue = changedir(storetoken, &predirect);
 		if (CDvalue  == -1)
 			CDerrmessage(storetoken, argv[0], counter);
+
+		
+		/* fork for execve */
 		childpid = fork();
 
 		if (childpid == -1)
@@ -58,11 +63,12 @@ int main(int argc __attribute__ ((unused)), char **argv)
 
 		if (childpid == 0)
 		{
+
+			if (checkenv(storetoken))
+				__exit(errnum, storetoken, strinput, head, cmdinpath, predirect.s);
 			cerrnum = checkexit(storetoken);
 			if (cerrnum != -1)
 				__exit(cerrnum, storetoken, strinput, head, cmdinpath, predirect.s);
-			if (checkenv(storetoken))
-				__exit(errnum, storetoken, strinput, head, cmdinpath, predirect.s);
 
 			execve(storetoken[0], storetoken, environ);
 			cmdinpath = findcommand(head, storetoken[0]);
