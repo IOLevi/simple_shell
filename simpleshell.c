@@ -68,7 +68,7 @@ int main(int argc __attribute__ ((unused)), char **argv)
 			execve(cmdinpath, storetoken, NULL);
 			if (!predirect.boo)
 				errmessage(storetoken, argv[0], counter);
-			errnum = 127;
+			errnum = 0;
 			__exit(errnum, storetoken, strinput, head, cmdinpath);
 		}
 		else /** if childpid is more than 0 then we're in parent process*/
